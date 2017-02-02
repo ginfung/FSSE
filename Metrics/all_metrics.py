@@ -58,8 +58,6 @@ def put_record_here(filename, model):
             if e[0] > 0.000001: continue
             PFc.append(e[1:])
 
-    assert len(PFc) > 0, 'no valid candidates found. TODO ...'
-
     creator.create("FitnessMin", base.Fitness, weights=[-1.0] * len(PFc[0]))
     creator.create("Individual", str, fitness=creator.FitnessMin)
 
@@ -73,6 +71,11 @@ def put_record_here(filename, model):
     del pop
     PFc = _get_frontier(PFc)  # DEAP version
     PFc_list = [i.fitness.values for i in PFc]  # PYTHON LIST version
+
+    if len(PFc) < 5:
+        print('%s\t%s\t%s\t%s\t%s' % ('n/a', 'n/a', 'n/a', str(len(PFc)), 'n/a'))
+        return
+
     # GD
     # load the PF0
     PF0 = list()
@@ -102,7 +105,7 @@ def put_record_here(filename, model):
 if __name__ == '__main__':
     import warnings
     warnings.filterwarnings("ignore")
-
+    import debug
     models = ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
     for name in models:
         print('MODEL = ', name)
