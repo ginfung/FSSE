@@ -29,6 +29,7 @@ from deap import creator, base
 from deap.tools.emo import sortNondominated
 from Metrics.hv import HyperVolume
 from Metrics.gd import GD
+from Metrics.gs import GS
 import pdb
 
 
@@ -84,7 +85,8 @@ def put_record_here(filename, model):
     print('GD = ', '%.3E'%Decimal(str(gd)))
 
     # GS
-
+    gs = GS(PF0, PFc_list)
+    print('GS = ', '%.3E'%Decimal(str(gs)))
     # PFS
     pfs = len(PFc)
     print('PFS = ', str(pfs))
@@ -95,7 +97,12 @@ def put_record_here(filename, model):
     hv = round(hv, 4)
     print('HV = ', str(hv))
 
+    print('%s\t%s\t%s\t%s\t%s' % (model, '%.3E'%Decimal(str(gd)), '%.3E'%Decimal(str(gs)), str(pfs), str(hv)))
+
 if __name__ == '__main__':
+    import warnings
+    warnings.filterwarnings("ignore")
+
     models = ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
     for name in models:
         print('MODEL = ', name)
