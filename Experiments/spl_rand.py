@@ -23,42 +23,73 @@
 
 
 from __future__ import division
+from __future__ import print_function
 from Benchmarks.SPL import DimacsModel
 from gmpy2 import popcount, mpz
+import time
+import sys
+import pycosat
 import random
+import copy
 import pdb
 
 def action(name):
-    p = DimacsModel(name)
+    fm = DimacsModel(name)
 
-    with open('/Users/jianfeng/Desktop/tse_rs/'+name+'.txt', 'r') as f:
-        candidates = list()
-        for l in f:
-            candidates.append(l.strip('\n'))
-            if len(candidates) > 1000: break
+    # pops = list()
+    cnf = copy.deepcopy(fm.cnfs)
 
-    can = list()
-    for i in candidates:
-        k = popcount(mpz(int(i,2)))
-        can.append((p.Individual(i), k))
-    del candidates
 
-    can = sorted(can, key=lambda i:i[1])
-    can = random.sample(can, 100)
+    f = open('/Users/jianfeng/Desktop/tse_rs/random/'+name+'.txt', 'w')
 
-    can = [i[0] for i in can]
-    for i in can:
-        p.eval(i)
-        # print(i.fitness.values)
+    for _ in range(6):
+        start_at = time.time()
+        f.write('T: ' + str(start_at) + '\n')
+        while time.time()-start_at < 5*60:  # record every 5 mintutes
+            sol = pycosat.solve(cnf, vars=fm.featureNum)
+            if isinstance(sol, list):
+                new_ind = fm.Individual(''.join(['1' if i > 0 else '0' for i in sol]))
+                sys.stdout.write('.')
+                # pops.append(new_ind)
+                fm.eval(new_ind)
+                f.write(' '.join(map(str, new_ind.fitness.values)))
+                f.write('\n')
+                cnf.append([-x for x in sol])
+            else:
+                f.close()
+                break
+        f.write('~~~\n')
+    f.close()
 
-    with open('/Users/jianfeng/Desktop/tse_rs/random/'+name+'.txt', 'w') as f:
-        for i in can:
-            f.write(' '.join(map(str, i.fitness.values)))
-            f.write('\n')
+    # with open('/Users/jianfeng/Desktop/tse_rs/'+name+'.txt', 'r') as f:
+    #     candidates = list()
+    #     for l in f:
+    #         candidates.append(l.strip('\n'))
+    #         if len(candidates) > 1000: break
+    #
+    # can = list()
+    # for i in candidates:
+    #     k = popcount(mpz(int(i,2)))
+    #     can.append((fm.Individual(i), k))
+    # del candidates
+    #
+    # can = sorted(can, key=lambda i:i[1])
+    # can = random.sample(can, 100)
+    #
+    # can = [i[0] for i in can]
+    # for i in can:
+    #     fm.eval(i)
+    #     # print(i.fitness.values)
+    #
+    # with open('/Users/jianfeng/Desktop/tse_rs/random/'+name+'.txt', 'w') as f:
+    #     for i in can:
+    #         f.write(' '.join(map(str, i.fitness.values)))
+    #         f.write('\n')
 
 
 if __name__ == '__main__':
-    models = ['webportal', 'eshop',  'fiasco', 'freebsd', 'linux']
+    models = ['linux']
+    # models = ['webportal', 'eshop',  'fiasco', 'freebsd', 'linux']
     for model in models:
         action(model)
         print('finish ' + model)

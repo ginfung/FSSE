@@ -63,8 +63,8 @@ def put_record_here(filename, model):
         PFc = _get_frontier(PFc)  # DEAP version
         PFc_list = [i.fitness.values for i in PFc]  # PYTHON LIST version
 
-        if len(PFc) < 5:
-            return '%s\t%s\t%s\t%s\t%s' % ('n/a', 'n/a', 'n/a', str(len(PFc)), 'n/a')
+        if len(PFc) < 3:
+            return '%s\t%s\t%s\t%s\t%s' % ('n/a', 'n/a', 'n/a', str(len(PFc)), 'n/a'), []
 
         # GD
         # load the PF0
@@ -72,7 +72,7 @@ def put_record_here(filename, model):
         with open('./PF_0/' + model + '.txt', 'r') as f:
             for l in f:
                 e = l.strip('\n').split(' ')
-                e = [round(float(i), 3) for i in e]
+                e = [float(i) for i in e]
                 PF0.append(e)
         gd = GD(PF0, PFc_list)
         # print('GD =GD ', '%.3E'%Decimal(str(gd)))
@@ -90,7 +90,7 @@ def put_record_here(filename, model):
         hv = round(hv, 4)
         # print('HV = ', str(hv))
 
-        return '%s\t%s\t%s\t%s\t%s' % (model, '%.3E' % Decimal(str(gd)), '%.3E' % Decimal(str(gs)), str(pfs), str(hv))
+        return '%s\t%s\t%s\t%s\t%s' % (model, '%.3E' % Decimal(str(gd)), '%.3E' % Decimal(str(gs)), str(pfs), str(hv)), PFc_list
 
     PFc = list()
     # canNum = 0
@@ -100,7 +100,7 @@ def put_record_here(filename, model):
 
     times = list()
 
-    PFc = list()
+    PFc = []
 
     for l in content:
         if l.startswith('T:'):
@@ -110,13 +110,13 @@ def put_record_here(filename, model):
             continue
         if l.startswith('~~~'):
             if len(PFc):
-                mas = calc(PFc)
+                mas, saved = calc(PFc)
                 print(str(round(times[-1]-times[0], 2)) + '\t' + mas)
-            Pfc = list()
+                PFc = saved
             continue
         # filtering for SPL
         e = l.split(' ')
-        e = [round(float(i), 2) for i in e]
+        e = [round(float(i), 3) for i in e]
         if e[0] > 0.00001: continue
         PFc.append(e[1:])
 
@@ -128,5 +128,5 @@ if __name__ == '__main__':
     models = ['linux']
     for name in models:
         print('MODEL = ', name)
-        put_record_here('/Users/jianfeng/Desktop/tse_rs/satibea/'+name+'.txt', name)
+        put_record_here('/Users/jianfeng/Desktop/tse_rs/random/'+name+'.txt', name)
         print('\n\n')
