@@ -48,66 +48,85 @@ def _get_frontier(pop):
 
 
 def put_record_here(filename, model):
+    def calc(PFc):
+        creator.create("FitnessMin", base.Fitness, weights=[-1.0] * len(PFc[0]))
+        creator.create("Individual", str, fitness=creator.FitnessMin)
+
+        pop = list()
+        for sol in PFc:
+            ind = creator.Individual(str(sol))  # a trick here... use the fitness to identify solutions
+            ind.fitness = creator.FitnessMin(sol)
+            pop.append(ind)
+        del PFc
+        PFc = pop[:]
+        del pop
+        PFc = _get_frontier(PFc)  # DEAP version
+        PFc_list = [i.fitness.values for i in PFc]  # PYTHON LIST version
+
+        if len(PFc) < 5:
+            return '%s\t%s\t%s\t%s\t%s' % ('n/a', 'n/a', 'n/a', str(len(PFc)), 'n/a')
+
+        # GD
+        # load the PF0
+        PF0 = list()
+        with open('./PF_0/' + model + '.txt', 'r') as f:
+            for l in f:
+                e = l.strip('\n').split(' ')
+                e = [round(float(i), 3) for i in e]
+                PF0.append(e)
+        gd = GD(PF0, PFc_list)
+        # print('GD =GD ', '%.3E'%Decimal(str(gd)))
+
+        # GS
+        gs = GS(PF0, PFc_list)
+        # print('GS = ', '%.3E'%Decimal(str(gs)))
+        # PFS
+        pfs = len(PFc)
+        # print('PFS = ', str(pfs))
+        # HV
+        rp = [1] * len(PFc[0].fitness.values)  # reference point
+
+        hv = HyperVolume(rp).compute(PFc_list)
+        hv = round(hv, 4)
+        # print('HV = ', str(hv))
+
+        return '%s\t%s\t%s\t%s\t%s' % (model, '%.3E' % Decimal(str(gd)), '%.3E' % Decimal(str(gs)), str(pfs), str(hv))
+
     PFc = list()
     # canNum = 0
     with open(filename, 'r') as f:
-        for l in f:
-            # canNum += 1
-            e = l.strip('\n').split(' ')
-            e = [round(float(i), 2) for i in e]
-            if e[0] > 0.000001: continue
-            PFc.append(e[1:])
+        content = f.readlines()
+    content = map(lambda l: l.strip('\n'), content)
 
-    creator.create("FitnessMin", base.Fitness, weights=[-1.0] * len(PFc[0]))
-    creator.create("Individual", str, fitness=creator.FitnessMin)
+    times = list()
 
-    pop = list()
-    for sol in PFc:
-        ind = creator.Individual(str(sol))  # a trick here... use the fitness to identify solutions
-        ind.fitness = creator.FitnessMin(sol)
-        pop.append(ind)
-    del PFc
-    PFc = pop[:]
-    del pop
-    PFc = _get_frontier(PFc)  # DEAP version
-    PFc_list = [i.fitness.values for i in PFc]  # PYTHON LIST version
+    PFc = list()
 
-    if len(PFc) < 5:
-        print('%s\t%s\t%s\t%s\t%s' % ('n/a', 'n/a', 'n/a', str(len(PFc)), 'n/a'))
-        return
-
-    # GD
-    # load the PF0
-    PF0 = list()
-    with open('./PF_0/'+model+'.txt', 'r') as f:
-        for l in f:
-            e = l.strip('\n').split(' ')
-            e = [round(float(i), 3) for i in e]
-            PF0.append(e)
-    gd = GD(PF0, PFc_list)
-    print('GD = ', '%.3E'%Decimal(str(gd)))
-
-    # GS
-    gs = GS(PF0, PFc_list)
-    print('GS = ', '%.3E'%Decimal(str(gs)))
-    # PFS
-    pfs = len(PFc)
-    print('PFS = ', str(pfs))
-    # HV
-    rp = [1] * len(PFc[0].fitness.values)  # reference point
-
-    hv = HyperVolume(rp).compute(PFc_list)
-    hv = round(hv, 4)
-    print('HV = ', str(hv))
-
-    print('%s\t%s\t%s\t%s\t%s' % (model, '%.3E'%Decimal(str(gd)), '%.3E'%Decimal(str(gs)), str(pfs), str(hv)))
+    for l in content:
+        if l.startswith('T:'):
+            times.append(float(l[2:]))
+            continue
+        if l.startswith('Gen:'):
+            continue
+        if l.startswith('~~~'):
+            if len(PFc):
+                mas = calc(PFc)
+                print(str(round(times[-1]-times[0], 2)) + '\t' + mas)
+            Pfc = list()
+            continue
+        # filtering for SPL
+        e = l.split(' ')
+        e = [round(float(i), 2) for i in e]
+        if e[0] > 0.00001: continue
+        PFc.append(e[1:])
 
 if __name__ == '__main__':
     import warnings
     warnings.filterwarnings("ignore")
     import debug
-    models = ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
+    # models = ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
+    models = ['linux']
     for name in models:
         print('MODEL = ', name)
-        put_record_here('/Users/jianfeng/Desktop/tse_rs/random/'+name+'.txt', name)
+        put_record_here('/Users/jianfeng/Desktop/tse_rs/satibea/'+name+'.txt', name)
         print('\n\n')

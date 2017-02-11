@@ -86,7 +86,7 @@ def get_sway_res(model):
         for l in f:
             can = model.Individual(l.strip('\n'))
             candidates.append(can)
-    res = sway(candidates, model.eval, partial(split_products, groupC=8), comparing)
+    res = sway(candidates, model.eval, partial(split_products, groupC=min(15, model.featureNum//7)), comparing)
     return res
 
 if __name__ == '__main__':

@@ -83,27 +83,6 @@ class DimacsModel:
         self.toolbox = base.Toolbox()
         self.toolbox.register("evaluate", self.eval_ind)
         self.eval = self.toolbox.evaluate
-    #
-    # def get_random_bit_ind(self, background=None, mask=None):
-    #     dec = ''
-    #     if mask is None:
-    #         mask = range(self.featureNum)
-    #     for i in range(self.featureNum):
-    #         if i in mask:
-    #             dec += random.choice(['0', '1'])
-    #         else:
-    #             dec += background[i]
-    #     return self.Individual(dec)
-    #
-    # def gen_random_bit_ind_r(self, pb=0.5):
-    #     dec = ''
-    #     for i in range(self.featureNum):
-    #         if random.uniform(0,1) <= pb:
-    #             dec += '1'
-    #         else:
-    #             dec += '0'
-    #     return self.Individual(dec)
-    #
 
     def eval_ind(self, ind, normalized=True):
         """
@@ -145,7 +124,10 @@ class DimacsModel:
         else:
             ind.fitness.values = (convio, unselected, unused, defect, cost)
 
-    #
+
+        return ind.fitness.values
+
+        #
     # @staticmethod
     # def bit_flip_mutate(individual):
     #     # modification log -- not use the mutateRate parameter. just select one bit and flip that
