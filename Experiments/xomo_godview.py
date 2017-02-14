@@ -32,6 +32,7 @@ import debug
 
 
 def action(model):
+    start_time = time.time()
     # generating the 10k random solutions
     candidates = list()
     for _ in range(10000):
@@ -44,22 +45,21 @@ def action(model):
     print('finish evaluating.')
     res = emo.sortNondominated(candidates, len(candidates), True)
     print('finish selection.')
-    pdb.set_trace()
+    finish_time = time.time()
+    with open('/Users/jianfeng/Desktop/tse_rs/god/' + model.name + '.txt', 'w') as f:
+        f.write('T:' + str(start_time) + '\n~~~\n')
+        f.write('T:' + str(finish_time) + '\n')
+        for front in res[0]:
+            f.write(' '.join(map(str, front.fitness.values)))
+            f.write('\n')
+
+        f.write('~~~\n')
+
     return res
 
 
 if __name__ == '__main__':
-    ii = [0]
+    ii = [3]
     for i in ii:
         XOMO_model = pre_defined()[i]
-        start_time = time.time()
         res = action(XOMO_model)
-        finish_time = time.time()
-        #
-        # # save the results
-        # with open('/Users/jianfeng/Desktop/tse_rs/sway/'+XOMO_model.name+'.txt', 'w') as f:
-        #     f.write('T:' + str(start_time) + '\n~~~\n')
-        #     f.write('T:' + str(finish_time) + '\n')
-        #     for i in res:
-        #         f.write(' '.join(map(str, i.fitness.values)))
-        #         f.write('\n')
