@@ -53,7 +53,7 @@ class XOMO(object):
                 self.bound[key] = (min(val), max(val)+0.000001)  # avoid divide-by-zero error
 
         creator.create('FitnessMin', base.Fitness, weights=[-1.0]*4)
-        creator.create('Individual', list, fitness=creator.FitnessMin)
+        creator.create('Individual', tuple, fitness=creator.FitnessMin)
 
         self.decsNum = len(names)
         self.decs = names
@@ -188,9 +188,11 @@ objs_bound_groud = [[0, 5e4], [0, 150], [0, 7e5], [0, 18]]
 objs_bound_flight = [[0, 4e4], [0, 150], [0, 5e5], [0, 20]]
 
 
-if __name__ == '__main__':
+def pre_defined():
     XOMO_OSP = XOMO('osp', bounds_osp, objs_bound_osp)
     XOMO_OSP2 = XOMO('osp2', bounds_osp2, objs_bound_osp2)
     XOMO_GROUND = XOMO('ground', bounds_ground, objs_bound_groud)
     XOMO_FLIGHT = XOMO('flight', bounds_flight, objs_bound_flight)
+    return XOMO_OSP, XOMO_OSP2, XOMO_GROUND, XOMO_FLIGHT
+
 

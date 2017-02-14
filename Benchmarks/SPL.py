@@ -63,8 +63,10 @@ class DimacsModel:
         self.cost = []
         self.used_before = []
         self.defects = []
-
-        lines = requests.get('https://zenodo.org/record/265807/files/'+fm_name+'.dimacs.augment').text.encode('ascii')
+        while True:
+            content = requests.get('https://zenodo.org/record/265807/files/'+fm_name+'.dimacs.augment')
+            if content.status_code == 200: break
+        lines = content.text.encode('ascii')
         lines = lines.split('\n')[1:]
         lines = map(lambda x:x.rstrip(), lines)
         for l in lines:
