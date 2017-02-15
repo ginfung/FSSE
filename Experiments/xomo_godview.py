@@ -25,6 +25,7 @@
 from __future__ import division
 from deap.tools import emo
 from Benchmarks.XOMO import XOMO, pre_defined
+from repeats import request_new_file
 import time
 import random
 import pdb
@@ -46,7 +47,7 @@ def action(model):
     res = emo.sortNondominated(candidates, len(candidates), True)
     print('finish selection.')
     finish_time = time.time()
-    with open('/Users/jianfeng/Desktop/tse_rs/god/' + model.name + '.txt', 'w') as f:
+    with open(request_new_file('/Users/jianfeng/Desktop/tse_rs/god', model.name), 'w') as f:
         f.write('T:' + str(start_time) + '\n~~~\n')
         f.write('T:' + str(finish_time) + '\n')
         for front in res[0]:
@@ -59,7 +60,8 @@ def action(model):
 
 
 if __name__ == '__main__':
-    ii = [3]
+    ii = [0, 1, 2, 3]
     for i in ii:
+        print(i)
         XOMO_model = pre_defined()[i]
         res = action(XOMO_model)

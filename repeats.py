@@ -23,47 +23,33 @@
 
 
 from __future__ import division
-from deap.tools import emo
-from Benchmarks.SPL import DimacsModel
-from repeats import request_new_file
-import time
+from os.path import isfile, join
+import os
 import pdb
-import debug
-
-"""
-Evaluating all 10k SAT solver results, then use usga-ii sorting to get the frontier
-"""
 
 
-def action(fm):
-    # laod the 10k sat solutions
-    candidates = list()
-    with open('/Users/jianfeng/Desktop/tse_rs/'+ fm.name + '.txt', 'r') as f:
-        for l in f:
-            can = fm.Individual(l.strip('\n'))
-            candidates.append(can)
-    # evaluate all
-    start_time = time.time()
-    for can in candidates:
-        fm.eval(can)
-    mid_time = time.time()
-    res = emo.sortNondominated(candidates, len(candidates), True)
-    finish_time = time.time()
+def request_new_file(folder, model_name):
+    if folder[-1] == '/':
+        folder = folder[:-1]
 
-    with open(request_new_file('/Users/jianfeng/Desktop/tse_rs/god', fm.name), 'w') as f:
-        f.write('T:'+str(start_time)+'\n~~~\n')
-        f.write('T:'+str(finish_time)+'\n')
-        for front in res[0]:
-            f.write(' '.join(map(str, front.fitness.values)))
-            f.write('\n')
+    files = [f for f in os.listdir(folder) if isfile(join(folder, f))]
+    existed = [f for f in files if '_'+model_name+'_' in f]
+    if len(existed) == 0:
+        return folder+'/_'+model_name+'_1.txt'
+    else:
+        i = [int(e.split('_')[2].split('.')[0]) for e in existed]
+        i = max(i) + 1
+        return folder+'/_'+model_name+'_' + str(i) + '.txt'
 
-        f.write('~~~\n')
-    # pdb.set_trace()
+
+def fetch_all_files(folder, model_name):
+    if folder[-1] == '/':
+        folder = folder[:-1]
+
+    files = [join(folder, f) for f in os.listdir(folder) if isfile(join(folder, f)) and '_'+model_name+'_' in f]
+    return files
+
 
 if __name__ == '__main__':
-    # models = ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
-    models = ['linux']
-    for name in models:
-        model = DimacsModel(name)
-        action(model)
-        print(name)
+    print(request_new_file('/Users/jianfeng/Desktop/tse_rs/paper_material', 'osp'))
+    print(fetch_all_files('/Users/jianfeng/Desktop/tse_rs/paper_material', 'osp'))

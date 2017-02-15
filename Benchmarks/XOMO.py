@@ -1,6 +1,7 @@
 from __future__ import division
 from XOMO_Base.xomo_liaison import xomol
 from deap import base, creator, tools
+import random
 import pdb
 
 
@@ -182,17 +183,16 @@ bounds_flight = {"prec": (6.2, 1.24),
                          "sced": (1, 1),
                          "site": (1.22, 0.8),
                          "docu": (0.81, 1.23)}
-objs_bound_osp = [[0, 3e4], [0, 150], [0, 6e5], [0, 15]]
-objs_bound_osp2 = [[0, 4e4], [0, 150], [0, 8e5], [0, 20]]
-objs_bound_groud = [[0, 5e4], [0, 150], [0, 7e5], [0, 18]]
-objs_bound_flight = [[0, 4e4], [0, 150], [0, 5e5], [0, 20]]
+# objs_bound_osp = [[0, 1.1e4], [0, 80], [0, 1.5e5], [0, 12]]
+# objs_bound_osp2 = [[0, 1.1e4], [0, 80], [0, 1.5e5], [0, 10]]
+# objs_bound_groud = [[0, 1.2e4], [0, 80], [0, 1.3e5], [0, 11]]
+# objs_bound_flight = [[0, 1.2e4], [0, 80], [0, 1.5e5], [0, 10]]
+objs_bound = [[0, 8e3], [0, 65], [0, 1.3e5], [0, 10]]
 
 
 def pre_defined():
-    XOMO_OSP = XOMO('osp', bounds_osp, objs_bound_osp)
-    XOMO_OSP2 = XOMO('osp2', bounds_osp2, objs_bound_osp2)
-    XOMO_GROUND = XOMO('ground', bounds_ground, objs_bound_groud)
-    XOMO_FLIGHT = XOMO('flight', bounds_flight, objs_bound_flight)
+    XOMO_OSP = XOMO('osp', bounds_osp, objs_bound)
+    XOMO_OSP2 = XOMO('osp2', bounds_osp2, objs_bound)
+    XOMO_GROUND = XOMO('ground', bounds_ground, objs_bound)
+    XOMO_FLIGHT = XOMO('flight', bounds_flight, objs_bound)
     return XOMO_OSP, XOMO_OSP2, XOMO_GROUND, XOMO_FLIGHT
-
-

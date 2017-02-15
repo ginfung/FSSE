@@ -27,6 +27,7 @@ from Benchmarks.SPL import DimacsModel
 from Algorithms.sway_sampler import sway, cont_dominate
 from gmpy2 import popcount, mpz
 from functools import partial
+from repeats import request_new_file
 import random
 import pdb
 
@@ -99,7 +100,7 @@ if __name__ == '__main__':
         res = get_sway_res(model)
 
         # save the results
-        with open('/Users/jianfeng/Desktop/tse_rs/sway/' + name + '.txt', 'w') as f:
+        with open(request_new_file('/Users/jianfeng/Desktop/tse_rs/sway', name), 'w') as f:
             for i in res:
                 f.write(' '.join(map(str, i.fitness.values)))
                 f.write('\n')

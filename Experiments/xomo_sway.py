@@ -25,6 +25,7 @@
 from __future__ import division
 from Algorithms.sway_sampler import sway, bin_dominate
 from Benchmarks.XOMO import XOMO, pre_defined
+from repeats import request_new_file
 import time
 import random
 import pdb
@@ -73,23 +74,27 @@ def get_sway_res(model):
         ran_dec = [random.random() for _ in range(model.decsNum)]
         can = model.Individual(ran_dec)
         candidates.append(can)
+
     res = sway(candidates, model.eval, where, comparing)
 
     return res
 
 
 if __name__ == '__main__':
-    ii = [0,1,2,3]
-    for i in ii:
-        XOMO_model = pre_defined()[i]
-        start_time = time.time()
-        res = get_sway_res(XOMO_model)
-        finish_time = time.time()
+    for repeat in range(5):
+        ii = [0, 1, 2, 3]
+        for i in ii:
+            XOMO_model = pre_defined()[i]
+            start_time = time.time()
+            res = get_sway_res(XOMO_model)
+            finish_time = time.time()
 
-        # save the results
-        with open('/Users/jianfeng/Desktop/tse_rs/sway/'+XOMO_model.name+'.txt', 'w') as f:
-            f.write('T:' + str(start_time) + '\n~~~\n')
-            f.write('T:' + str(finish_time) + '\n')
-            for i in res:
-                f.write(' '.join(map(str, i.fitness.values)))
-                f.write('\n')
+            # save the results
+            with open(request_new_file('/Users/jianfeng/Desktop/tse_rs/sway', XOMO_model.name), 'w') as f:
+                f.write('T:' + str(start_time) + '\n~~~\n')
+                f.write('T:' + str(finish_time) + '\n')
+                for i in res:
+                    f.write(' '.join(map(str, i.fitness.values)))
+                    f.write('\n')
+
+        print('******   ' + str(repeat) + '   ******')

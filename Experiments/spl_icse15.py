@@ -25,6 +25,7 @@
 from __future__ import division
 from Algorithms import SATIBEA
 from Benchmarks.SPL import DimacsModel
+from repeats import request_new_file
 import time
 import sys
 
@@ -41,7 +42,7 @@ if __name__ == '__main__':
         # sys.stdout = save_stdout
 
         # save the results
-        with open('/Users/jianfeng/Desktop/tse_rs/satibea/' + name + '.txt', 'w') as f:
+        with open(request_new_file('/Users/jianfeng/Desktop/tse_rs/satibea', name), 'w') as f:
             f.write('T:' + str(start_at) + '\n')
             f.write('~~~\n')
             for log in res[1]:
