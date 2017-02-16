@@ -25,6 +25,7 @@
 from __future__ import division
 from deap.tools.emo import sortNondominated
 from deap import creator, base
+from repeats import fetch_all_files
 import os
 import pdb
 
@@ -51,7 +52,7 @@ folders = [
     '/Users/jianfeng/Desktop/tse_rs/sway/',
 ]
 
-models = ['ground']
+models = ['osp', 'osp2', 'ground', 'flight']
 
 union_candidates = list()
 
@@ -59,20 +60,22 @@ creator.create("FitnessMin", base.Fitness, weights=[-1.0] * 4)  # TODO set "4"?
 creator.create("Individual", str, fitness=creator.FitnessMin)
 
 for model in models:
+    union_candidates = []
     for f in folders:
-        with open(f+model+'.txt', 'r') as records:
-            content = records.readlines()
-        content = map(lambda l: l.strip('\n'), content)
-        for l in content:
-            if l.startswith('T') or l.startswith('~~~') or l.startswith('G'):
-                continue
-            e = l.split(' ')
-            e = [float(i) for i in e]
-            ind = creator.Individual(str(e))
-            ind.fitness = creator.FitnessMin(e)
+        for i in fetch_all_files(f, model):
+            with open(i, 'r') as records:
+                content = records.readlines()
+            content = map(lambda l: l.strip('\n'), content)
+            for l in content:
+                if l.startswith('T') or l.startswith('~~~') or l.startswith('G'):
+                    continue
+                e = l.split(' ')
+                e = [float(i) for i in e]
+                ind = creator.Individual(str(e))
+                ind.fitness = creator.FitnessMin(e)
 
-            union_candidates.append(ind)
-
+                union_candidates.append(ind)
+    # pdb.set_trace()
     frontier = _get_frontier(union_candidates)
 
     # write out the frontier
@@ -80,4 +83,3 @@ for model in models:
         for front in frontier:
             f.write(' '.join(map(str, front.fitness.values)))
             f.write('\n')
-

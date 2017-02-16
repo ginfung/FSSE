@@ -60,8 +60,11 @@ def action(model):
 
 
 if __name__ == '__main__':
-    ii = [0, 1, 2, 3]
-    for i in ii:
-        print(i)
-        XOMO_model = pre_defined()[i]
-        res = action(XOMO_model)
+    for repeat in range(6):
+        ii = [0, 1, 2, 3]
+        for i in ii:
+            print(i)
+            XOMO_model = pre_defined()[i]
+            res = action(XOMO_model)
+
+        print('******   ' + str(repeat) + '   ******')

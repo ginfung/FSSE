@@ -81,7 +81,7 @@ def get_sway_res(model):
 
 
 if __name__ == '__main__':
-    for repeat in range(5):
+    for repeat in range(30):
         ii = [0, 1, 2, 3]
         for i in ii:
             XOMO_model = pre_defined()[i]
