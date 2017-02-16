@@ -1,6 +1,7 @@
 from __future__ import division
 from XOMO_Base.xomo_liaison import xomol
 from deap import base, creator, tools
+import array
 import random
 import pdb
 
@@ -53,8 +54,8 @@ class XOMO(object):
             if min(val) == max(val):
                 self.bound[key] = (min(val), max(val)+0.000001)  # avoid divide-by-zero error
 
-        creator.create('FitnessMin', base.Fitness, weights=[-1.0]*4)
-        creator.create('Individual', tuple, fitness=creator.FitnessMin)
+        creator.create('FitnessMin', base.Fitness, weights=(-1.0, -1.0, -1.0, -1.0))
+        creator.create('Individual', array.array, typecode='d', fitness=creator.FitnessMin)
 
         self.decsNum = len(names)
         self.decs = names
