@@ -47,7 +47,7 @@ def self_stats(pop, model, PF0):
     return (gd, gs, pfs, hv)
 
 
-def action(model, mu, ngen, cxpb):
+def action(model, mu, ngen, cxpb, mutpb):
     toolbox = model.toolbox
 
     toolbox.register('mate', tools.cxOnePoint)
@@ -80,20 +80,32 @@ def action(model, mu, ngen, cxpb):
             if random.random() <= cxpb:
                 toolbox.mate(ind1, ind2)
 
-            toolbox.mutate(ind1)
-            toolbox.mutate(ind2)
+            if random.random() <= mutpb:
+                toolbox.mutate(ind1)
+                toolbox.mutate(ind2)
 
             model.eval(ind1)
             model.eval(ind2)
 
         pop = toolbox.select(pop+offspring, mu)
-
-        record = stats.compile(pop)
-        logbook.record(gen=gen, **record)
-        print(logbook.stream)
+        # print(gen)
+    # record = stats.compile(pop)
+    # logbook.record(gen=gen, **record)
+    # print(logbook.stream)
 
     return pop
 
 if __name__ == '__main__':
-    XOMO_OSP = XOMO.pre_defined()[1]
-    action(XOMO_OSP, 300, 30, 0.3)
+    # simulating grid search
+    # MU = [100, 200, 300]
+    # CXPB = [0.9, 0.8, 0.7]
+    # MUTPB = [0.1, 0.15, 0.2]
+    #
+    # model = XOMO.pre_defined()[3]
+    #
+    # for mu in MU:
+    #     for cxpb in CXPB:
+    #         for mutpb in MUTPB:
+    #             print(mu, cxpb, mutpb),
+    #             action(model, mu, 10000//mu, cxpb, mutpb)
+    pass

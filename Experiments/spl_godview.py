@@ -26,6 +26,8 @@ from __future__ import division
 from deap.tools import emo
 from Benchmarks.SPL import DimacsModel
 from repeats import request_new_file
+from operator import itemgetter
+from itertools import groupby
 import time
 import pdb
 import debug
@@ -38,7 +40,7 @@ Evaluating all 10k SAT solver results, then use usga-ii sorting to get the front
 def action(fm):
     # laod the 10k sat solutions
     candidates = list()
-    with open('/Users/jianfeng/Desktop/tse_rs/'+ fm.name + '.txt', 'r') as f:
+    with open('/Users/jianfeng/Desktop/tse_rs/' + fm.name + '.txt', 'r') as f:
         for l in f:
             can = fm.Individual(l.strip('\n'))
             candidates.append(can)
@@ -46,7 +48,17 @@ def action(fm):
     start_time = time.time()
     for can in candidates:
         fm.eval(can)
+    #     o = (round(i, 2) for i in can.fitness.values)
+    #     can.fitness.values = o
+    #
+    # candidates.sort(key=lambda i: i.fitness.values)
+    # x = 0
+    # for k, g in groupby(candidates, key=lambda i: i.fitness.values):
+    #     x += 1
+    #     print(k)
+    # pdb.set_trace()
     mid_time = time.time()
+
     res = emo.sortNondominated(candidates, len(candidates), True)
     finish_time = time.time()
 
@@ -58,12 +70,12 @@ def action(fm):
             f.write('\n')
 
         f.write('~~~\n')
-    # pdb.set_trace()
 
 if __name__ == '__main__':
-    # models = ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
-    models = ['linux']
-    for name in models:
-        model = DimacsModel(name)
-        action(model)
-        print(name)
+    for repeat in range(6):
+        models = ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
+        # models = ['webportal']
+        for name in models:
+            model = DimacsModel(name)
+            action(model)
+            print(name)

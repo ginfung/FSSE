@@ -29,6 +29,7 @@ from gmpy2 import popcount, mpz
 from functools import partial
 from repeats import request_new_file
 import random
+import time
 import pdb
 
 def count1(decint):
@@ -93,14 +94,17 @@ def get_sway_res(model):
 if __name__ == '__main__':
     # models = ['webportal']
     models = ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
-
-    for name in models:
-        model = DimacsModel(name)
-        print('start ' + name)
-        res = get_sway_res(model)
-
-        # save the results
-        with open(request_new_file('/Users/jianfeng/Desktop/tse_rs/sway', name), 'w') as f:
-            for i in res:
-                f.write(' '.join(map(str, i.fitness.values)))
-                f.write('\n')
+    for repeat in range(6):
+        for name in models:
+            print(name)
+            model = DimacsModel(name)
+            start_time = time.time()
+            res = get_sway_res(model)
+            finish_time = time.time()
+            # save the results
+            with open(request_new_file('/Users/jianfeng/Desktop/tse_rs/sway', name), 'w') as f:
+                f.write('T:' + str(start_time) + '\n~~~\n')
+                f.write('T:' + str(finish_time) + '\n')
+                for i in res:
+                    f.write(' '.join(map(str, i.fitness.values)))
+                    f.write('\n')
