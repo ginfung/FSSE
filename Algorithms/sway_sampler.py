@@ -44,8 +44,13 @@ def bin_dominate(ind1, ind2):
 
 
 def sway(pop, evalfunc, splitor, better):
-    def cluster(items, out):
+    def cluster(items):
         # print(len(items))
+        # add termination condition here
+        if len(items) < 100:
+            return items
+            #  end at here
+
         west, east, west_items, east_items = splitor(items)
         if type(west) is list:
             map(evalfunc, west)
@@ -54,31 +59,20 @@ def sway(pop, evalfunc, splitor, better):
             evalfunc(west)
             evalfunc(east)
 
-        # add termination condition here
-        if len(items) < 100:
-            out += [items]
-            return out
-        #  end at here
-
-        # pdb.set_trace()
         if better(east, west):
-            cluster(east_items, out)
+            selected = east_items
         if better(west, east):
-            cluster(west_items, out)
-
+            selected = west_items
         if not better(east, west) and not better(west, east):
-            if random.random() > 0.5:
-                cluster(east_items, out)
-            else:
-                cluster(west_items, out)
+            # selected = random.sample(west_items+east_items, len(items)//2)
+            return cluster(east_items) + cluster(west_items)
+        # selected = west_items[:len(west_items)//2]+east_items[:len(east_items)//2]
+        return cluster(selected)
 
-        return out
-
-    res = cluster(pop, [])
-    res = list(set(itertools.chain.from_iterable(res)))
+    res = cluster(pop)
 
     for i in res:
         if not i.fitness.valid:
             evalfunc(i)
-
+    # pdb.set_trace()
     return res

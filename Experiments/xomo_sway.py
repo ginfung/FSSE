@@ -23,7 +23,7 @@
 
 
 from __future__ import division
-from Algorithms.sway_sampler import sway, bin_dominate
+from Algorithms.sway_sampler import sway, bin_dominate, cont_dominate
 from Benchmarks.XOMO import XOMO, pre_defined
 from repeats import request_new_file
 import time
@@ -44,7 +44,7 @@ def where(pop):
     east = pop[ds.index(max(ds))]
     ds = [dist(i, east) for i in pop]
     west = pop[ds.index(max(ds))]
-
+    pdb.set_trace()
     c = dist(east, west)
     cc = 2 * c ** 0.5
 
@@ -64,6 +64,7 @@ def where(pop):
 
 
 def comparing(part1, part2):
+    pdb.set_trace()
     return bin_dominate(part1, part2)
 
 
@@ -81,7 +82,7 @@ def get_sway_res(model):
 
 
 if __name__ == '__main__':
-    for repeat in range(30):
+    for repeat in range(10):
         ii = [0, 1, 2, 3]
         for i in ii:
             XOMO_model = pre_defined()[i]

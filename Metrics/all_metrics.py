@@ -7,12 +7,13 @@ from Metrics.gd import GD
 from Metrics.gs import GS
 from repeats import fetch_all_files
 import numpy
+import pickle
 import pdb
 import debug
 
 
 PRODUCT_LINE_ONLY = False
-MINIMUM_PFS = 5
+MINIMUM_PFS = 3
 
 """
 GD
@@ -42,7 +43,6 @@ def _get_frontier(pop):
 
 def put_record_here(filename, model):
     def calc(PFc):
-        # pdb.set_trace()
         creator.create("FitnessMin", base.Fitness, weights=[-1.0]*len(PFc[0]))
         creator.create("Individual", str, fitness=creator.FitnessMin)
 
@@ -57,7 +57,8 @@ def put_record_here(filename, model):
         del pop
         PFc = _get_frontier(PFc)  # DEAP version
         PFc_list = [i.fitness.values for i in PFc]  # PYTHON LIST version
-
+        # print(PFc)
+        # print('----')
         if len(PFc) < MINIMUM_PFS:
             return model, -1, -1, len(PFc), -1, PFc
 
@@ -126,8 +127,11 @@ if __name__ == '__main__':
     # PRODUCT_LINE_ONLY = True
 
     models = ['osp', 'osp2', 'ground', 'flight']
+    all_stat = dict()
     for name in models:
-        files = fetch_all_files('/Users/jianfeng/Desktop/tse_rs/sway', name)
+        all_stat[name] = dict()
+        #
+        files = fetch_all_files('/Users/jianfeng/Desktop/tse_rs/god', name)
         gd, gs, pfs, hv = list(), list(), list(), list()
         for f in files:
             _, a, b, c, d = put_record_here(f, name)
@@ -137,5 +141,48 @@ if __name__ == '__main__':
             gs.append(b)
             pfs.append(c)
             hv.append(d)
-        print('%s\t%s\t%s\t%s\t%s' % (
-            name, '%.3E' % Decimal(str(median(gd))), '%.3E' % Decimal(str(median(gs))), str(median(pfs)), str(median(hv))))
+
+        all_stat[name]['ground'] = (gd, gs, pfs, hv)
+        # pdb.set_trace()
+        ###############
+        files = fetch_all_files('/Users/jianfeng/Desktop/tse_rs/sway', name)
+        gd, gs, pfs, hv = list(), list(), list(), list()
+        for f in files:
+            _, a, b, c, d = put_record_here(f, name)
+
+            if c < MINIMUM_PFS:
+                continue
+            gd.append(a)
+            gs.append(b)
+            pfs.append(c)
+            hv.append(d)
+
+        all_stat[name]['sway'] = (gd, gs, pfs, hv)
+
+        ###############
+        files = fetch_all_files('/Users/jianfeng/Desktop/tse_rs/nsga2', name)
+        gd, gs, pfs, hv = list(), list(), list(), list()
+        for f in files:
+            _, a, b, c, d = put_record_here(f, name)
+            if c < MINIMUM_PFS:
+                continue
+            gd.append(a)
+            gs.append(b)
+            pfs.append(c)
+            hv.append(d)
+
+        all_stat[name]['moea'] = (gd, gs, pfs, hv)
+
+        print(all_stat[name]['moea'][3])
+        print(all_stat[name]['ground'][3])
+        print(all_stat[name]['sway'][3])
+
+        from scipy.stats import ttest_ind
+        import scipy
+        # print ttest_ind(all_stat[name]['ground'][3][:6], all_stat[name]['sway'][3][:6])
+        print scipy.stats.wilcoxon(all_stat[name]['ground'][3][:6], all_stat[name]['moea'][3][:6])
+        print('----')
+
+    pdb.set_trace()
+    # with open('/Users/jianfeng/Desktop/tse_rs/paper_material/xomo.stat', 'w') as f:
+    #     pickle.dump(all_stat, f)
