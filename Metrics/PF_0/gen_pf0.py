@@ -49,14 +49,14 @@ def _get_frontier(pop):
 
 folders = [
     '/Users/jianfeng/Desktop/tse_rs/god/',
-    '/Users/jianfeng/Desktop/tse_rs/sway/',
+    # '/Users/jianfeng/Desktop/tse_rs/sway/',
 ]
 
-models = ['osp', 'osp2', 'ground', 'flight']
-
+# models = ['osp', 'osp2', 'ground', 'flight']
+models = ['p3a', 'p3b', 'p3c']
 union_candidates = list()
 
-creator.create("FitnessMin", base.Fitness, weights=[-1.0] * 4)  # TODO set "4"?
+creator.create("FitnessMin", base.Fitness, weights=[-1.0] * 3)  # TODO set "4"?
 creator.create("Individual", str, fitness=creator.FitnessMin)
 
 for model in models:

@@ -21,7 +21,7 @@ class POM3(object):
             if min(val) == max(val):
                 self.bound[key] = (min(val), max(val)+0.000001)  # avoid divide-by-zero error
 
-        creator.create('FitnessMin', base.Fitness, weights=(-1.0, -1.0, -1.0, -1.0))
+        creator.create('FitnessMin', base.Fitness, weights=(-1.0, -1.0, -1.0))
         creator.create('Individual', array.array, typecode='d', fitness=creator.FitnessMin)
 
         self.decsNum = len(names)
@@ -40,11 +40,10 @@ class POM3(object):
         dind = []
         for dn, v in zip(self.decs, ind):
             m, M = self.bound[dn]
-            dind.append((v-m)/(M-m))
+            dind.append(v * (M - m) + m)
 
         p3 = pom3()
         output = p3.simulate(dind)
-
         if not normalized:
             ind.fitness.values = output
         else:
@@ -64,7 +63,7 @@ bounds_pom3b = [[0.10, 0.82, 80, 0.40, 0, 1, 0, 0, 1], [0.90, 1.26, 95, 0.70, 10
 bounds_pom3c = [[0.50, 0.82, 2, 0.20, 0, 40, 2, 0, 20], [0.90, 1.26, 8, 0.50, 50, 50, 4, 5, 44]]
 bounds_pom3d = [[0.10, 0.82, 2, 0.60, 80, 1, 0, 0, 10], [0.20, 1.26, 8, 0.95, 100, 10, 2, 5, 20]]
 
-objs_bound = [[0, 8e3], [0, 65], [0, 1.3e5], [0, 10]]
+objs_bound = [[0, 1300], [0, 0.7], [0, 0.65]]
 
 
 def pre_defined():
@@ -74,6 +73,20 @@ def pre_defined():
     POM3D = POM3('p3d', bounds_pom3d, objs_bound)
     return POM3A, POM3B, POM3C, POM3D
 
-if __name__ == '__main__':
-    model = pre_defined()[0]
-    print(model.decsNum)
+
+# if __name__ == '__main__':
+#     model = pre_defined()[0]
+#     a, b, c = list(), list(), list()
+#
+#     for i in range(500):
+#         # print(i)
+#         ind = model.Individual([random.random() for _ in range(model.decsNum)])
+#         aa, bb, cc = model.eval(ind)
+#         a.append(aa)
+#         b.append(bb)
+#         c.append(cc)
+#         print(aa,bb,cc)
+#     a = sorted(a)
+#     b = sorted(b)
+#     c = sorted(c)
+#     pdb.set_trace()

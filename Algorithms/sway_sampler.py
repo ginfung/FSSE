@@ -52,6 +52,8 @@ def sway(pop, evalfunc, splitor, better):
             #  end at here
 
         west, east, west_items, east_items = splitor(items)
+        return cluster(west_items)
+
         if type(west) is list:
             map(evalfunc, west)
             map(evalfunc, east)
@@ -64,8 +66,8 @@ def sway(pop, evalfunc, splitor, better):
         if better(west, east):
             selected = west_items
         if not better(east, west) and not better(west, east):
-            # selected = random.sample(west_items+east_items, len(items)//2)
-            return cluster(east_items) + cluster(west_items)
+            selected = random.sample(west_items+east_items, len(items)//2)
+            # return cluster(east_items) + cluster(west_items)
         # selected = west_items[:len(west_items)//2]+east_items[:len(east_items)//2]
         return cluster(selected)
 

@@ -71,7 +71,7 @@ def action(model, mu, ngen, cxpb, mutpb):
         model.eval(p)
 
     pop = toolbox.select(pop, len(pop))
-
+    t = time.time()
     for gen in range(1, ngen):
         offspring = tools.selTournamentDCD(pop, len(pop))
         offspring = [copy.deepcopy(ind) for ind in offspring]
@@ -89,9 +89,10 @@ def action(model, mu, ngen, cxpb, mutpb):
 
         pop = toolbox.select(pop+offspring, mu)
         # print(gen)
-    # record = stats.compile(pop)
-    # logbook.record(gen=gen, **record)
-    # print(logbook.stream)
+        record = stats.compile(pop)
+        logbook.record(gen=gen, **record)
+        print(logbook.stream)
+        print(time.time()-t)
 
     return pop
 

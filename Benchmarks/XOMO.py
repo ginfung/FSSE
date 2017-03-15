@@ -73,7 +73,7 @@ class XOMO(object):
         dind = []
         for dn, v in zip(self.decs, ind):
             m, M = self.bound[dn]
-            dind.append((v-m)/(M-m))
+            dind.append(v * (M-m) + m)
 
         xomoxo = xomol()
         output = xomoxo.run(dind)
@@ -197,3 +197,9 @@ def pre_defined():
     XOMO_GROUND = XOMO('ground', bounds_ground, objs_bound)
     XOMO_FLIGHT = XOMO('flight', bounds_flight, objs_bound)
     return XOMO_OSP, XOMO_OSP2, XOMO_GROUND, XOMO_FLIGHT
+
+if __name__ == '__main__':
+    model = pre_defined()[2]
+    for _ in range(50):
+        ind = model.Individual([random.random() for _ in range(model.decsNum)])
+        print(model.eval(ind, False))

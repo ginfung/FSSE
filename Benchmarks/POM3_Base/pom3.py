@@ -120,7 +120,7 @@ class pom3:
         
         
         # return [cost, score, completion, idle]
-        return [cost, 1e10-score, idle]
+        return [cost, 1-score, idle]
         
         
 

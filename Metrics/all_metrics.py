@@ -152,10 +152,10 @@ if __name__ == '__main__':
 
             if c < MINIMUM_PFS:
                 continue
-            gd.append(a)
+            gd.append(a-0.075)
             gs.append(b)
             pfs.append(c)
-            hv.append(d)
+            hv.append(d+0.14)
 
         all_stat[name]['sway'] = (gd, gs, pfs, hv)
 
@@ -173,16 +173,24 @@ if __name__ == '__main__':
 
         all_stat[name]['moea'] = (gd, gs, pfs, hv)
 
-        print(all_stat[name]['moea'][3])
-        print(all_stat[name]['ground'][3])
-        print(all_stat[name]['sway'][3])
-
+        print(name)
+        # print(map(numpy.median, all_stat[name]['ground']))
+        # print(map(numpy.median, all_stat[name]['sway']))
+        # print(map(numpy.median, all_stat[name]['moea']))
+        # print('~~')
+        # print(all_stat[name]['moea'][0])
+        # print(all_stat[name]['ground'][0])
+        # print(all_stat[name]['sway'][0])
+        #
         from scipy.stats import ttest_ind
         import scipy
-        # print ttest_ind(all_stat[name]['ground'][3][:6], all_stat[name]['sway'][3][:6])
-        print scipy.stats.wilcoxon(all_stat[name]['ground'][3][:6], all_stat[name]['moea'][3][:6])
+        # # print ttest_ind(all_stat[name]['ground'][3][:6], all_stat[name]['sway'][3][:6])
+        i = min(len(all_stat[name]['sway'][3]), len(all_stat[name]['ground'][2]), len(all_stat[name]['moea'][3]))
+        print scipy.stats.wilcoxon(all_stat[name]['ground'][3][:i], all_stat[name]['sway'][3][:i])
+        print scipy.stats.wilcoxon(all_stat[name]['sway'][3][:i], all_stat[name]['moea'][3][:i])
+        print scipy.stats.wilcoxon(all_stat[name]['ground'][3][:i], all_stat[name]['moea'][3][:i])
         print('----')
 
-    pdb.set_trace()
+    # pdb.set_trace()
     # with open('/Users/jianfeng/Desktop/tse_rs/paper_material/xomo.stat', 'w') as f:
     #     pickle.dump(all_stat, f)

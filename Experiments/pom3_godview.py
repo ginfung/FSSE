@@ -23,41 +23,48 @@
 
 
 from __future__ import division
-from Algorithms import SATIBEA
-from Benchmarks.SPL import DimacsModel
+from deap.tools import emo
+from Benchmarks.POM3 import pre_defined
 from repeats import request_new_file
 import time
-import sys
+import random
+import pdb
+import debug
+
+
+def action(model):
+    start_time = time.time()
+    # generating the 10k random solutions
+    candidates = list()
+    for _ in range(10000):
+        ran_dec = [random.random() for _ in range(model.decsNum)]
+        can = model.Individual(ran_dec)
+        candidates.append(can)
+    print('random sol created.')
+    for can in candidates:
+        model.eval(can)
+    print('finish evaluating.')
+    res = emo.sortNondominated(candidates, len(candidates), True)
+    print('finish selection.')
+    finish_time = time.time()
+    with open(request_new_file('/Users/jianfeng/Desktop/tse_rs/god', model.name), 'w') as f:
+        f.write('T:' + str(start_time) + '\n~~~\n')
+        f.write('T:' + str(finish_time) + '\n')
+        for front in res[0]:
+            f.write(' '.join(map(str, front.fitness.values)))
+            f.write('\n')
+
+        f.write('~~~\n')
+
+    return res
+
 
 if __name__ == '__main__':
-    # save_stdout = sys.stdout
-    # models = ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
-    models = ['linux']
-    for name in models:
-        fm = DimacsModel(name)
-        start_at = time.time()
+    for repeat in range(6):
+        ii = [2]
+        for i in ii:
+            print(i)
+            POM3_model = pre_defined()[i]
+            res = action(POM3_model)
 
-        # sys.stdout = open('/Users/jianfeng/.Trash/trash', 'w')
-        res = SATIBEA.action(fm)
-        # sys.stdout = save_stdout
-        print(time.time()-start_at)
-        # # save the results
-        # with open(request_new_file('/Users/jianfeng/Desktop/tse_rs/satibea', name), 'w') as f:
-        #     f.write('T:' + str(start_at) + '\n')
-        #     f.write('~~~\n')
-        #     for log in res[1]:
-        #         gen = log['gen']
-        #         fitness = log['fitness']
-        #         at = log['time']
-        #
-        #         if fitness == 'pass':
-        #             continue
-        #
-        #         f.write('T:' + str(at)+'\n')
-        #         f.write('Gen: ' + str(gen) + '\n')
-        #
-        #         for i in fitness:
-        #             f.write(' '.join(map(str, i)))
-        #             f.write('\n')
-        #
-        #         f.write('~~~\n')
+        print('******   ' + str(repeat) + '   ******')

@@ -24,7 +24,7 @@
 
 from __future__ import division
 from Algorithms.sway_sampler import sway, bin_dominate, cont_dominate
-from Benchmarks.XOMO import XOMO, pre_defined
+from Benchmarks.POM3 import pre_defined
 from repeats import request_new_file
 import time
 import random
@@ -117,9 +117,9 @@ if __name__ == '__main__':
     for repeat in range(1):
         ii = [0, 1, 2, 3]
         for i in ii:
-            XOMO_model = pre_defined()[i]
+            POM3_model = pre_defined()[i]
             start_time = time.time()
-            res = get_sway_res(XOMO_model)
+            res = get_sway_res(POM3_model)
             finish_time = time.time()
             print(finish_time-start_time)
             # save the results
