@@ -898,7 +898,9 @@ class Cocomo(Model):
   def defects(o, dtype, x):  
     _ksloc = float(x["kloc"])
     _introduced = 0
-    if (dtype == "requirements"): 
+    import time
+    time.sleep(0.01)
+    if (dtype == "requirements"):
       _introduced = (10 * _ksloc * 
                      o.defectsIntroduced(dtype,x))
     elif (dtype == "design"):

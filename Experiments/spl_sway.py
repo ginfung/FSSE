@@ -94,7 +94,7 @@ def get_sway_res(model):
 if __name__ == '__main__':
     # models = ['webportal']
     models = ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
-    for repeat in range(6):
+    for repeat in range(4):
         for name in models:
             print(name)
             model = DimacsModel(name)

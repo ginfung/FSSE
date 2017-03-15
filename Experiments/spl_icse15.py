@@ -32,7 +32,7 @@ import sys
 if __name__ == '__main__':
     # save_stdout = sys.stdout
     # models = ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
-    models = ['linux']
+    models = ['webportal']
     for name in models:
         fm = DimacsModel(name)
         start_at = time.time()
