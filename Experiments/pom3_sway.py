@@ -114,7 +114,7 @@ def get_sway_res(model):
 
 
 if __name__ == '__main__':
-    for repeat in range(1):
+    for repeat in range(20):
         ii = [0, 1, 2, 3]
         for i in ii:
             POM3_model = pre_defined()[i]
@@ -123,11 +123,11 @@ if __name__ == '__main__':
             finish_time = time.time()
             print(finish_time-start_time)
             # save the results
-            # with open(request_new_file('/Users/jianfeng/Desktop/tse_rs/sway', XOMO_model.name), 'w') as f:
-            #     f.write('T:' + str(start_time) + '\n~~~\n')
-            #     f.write('T:' + str(finish_time) + '\n')
-            #     for i in res:
-            #         f.write(' '.join(map(str, i.fitness.values)))
-            #         f.write('\n')
+            with open(request_new_file('/Users/jianfeng/Desktop/tse_rs/sway', POM3_model.name), 'w') as f:
+                f.write('T:' + str(start_time) + '\n~~~\n')
+                f.write('T:' + str(finish_time) + '\n')
+                for i in res:
+                    f.write(' '.join(map(str, i.fitness.values)))
+                    f.write('\n')
 
         print('******   ' + str(repeat) + '   ******')

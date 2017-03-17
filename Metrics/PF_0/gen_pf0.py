@@ -49,7 +49,7 @@ def _get_frontier(pop):
 
 folders = [
     '/Users/jianfeng/Desktop/tse_rs/god/',
-    # '/Users/jianfeng/Desktop/tse_rs/sway/',
+    '/Users/jianfeng/Desktop/tse_rs/sway/',
 ]
 
 # models = ['osp', 'osp2', 'ground', 'flight']

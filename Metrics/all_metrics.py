@@ -1,5 +1,4 @@
 from __future__ import division
-from decimal import Decimal
 from deap import creator, base
 from deap.tools.emo import sortNondominated
 from Metrics.hv import HyperVolume
@@ -100,10 +99,6 @@ def put_record_here(filename, model):
         if l.startswith('Gen:'):
             continue
         if l.startswith('~~~'):
-            # if len(PFc):
-            #     # saved = calc(PFc)[-1]
-            #     # PFc = saved
-            #     # print(calc(PFc)[0])
             PFc = []
             continue
         # filtering for SPL
@@ -126,7 +121,9 @@ if __name__ == '__main__':
     # models = ['linux']
     # PRODUCT_LINE_ONLY = True
 
-    models = ['osp', 'osp2', 'ground', 'flight']
+    # models = ['osp', 'osp2', 'ground', 'flight']
+    models = ['p3a', 'p3b', 'p3c']
+
     all_stat = dict()
     for name in models:
         all_stat[name] = dict()
@@ -152,10 +149,10 @@ if __name__ == '__main__':
 
             if c < MINIMUM_PFS:
                 continue
-            gd.append(a-0.075)
+            gd.append(a)
             gs.append(b)
             pfs.append(c)
-            hv.append(d+0.14)
+            hv.append(d)
 
         all_stat[name]['sway'] = (gd, gs, pfs, hv)
 
@@ -175,22 +172,12 @@ if __name__ == '__main__':
 
         print(name)
         # print(map(numpy.median, all_stat[name]['ground']))
-        # print(map(numpy.median, all_stat[name]['sway']))
-        # print(map(numpy.median, all_stat[name]['moea']))
-        # print('~~')
-        # print(all_stat[name]['moea'][0])
-        # print(all_stat[name]['ground'][0])
-        # print(all_stat[name]['sway'][0])
-        #
-        from scipy.stats import ttest_ind
-        import scipy
-        # # print ttest_ind(all_stat[name]['ground'][3][:6], all_stat[name]['sway'][3][:6])
-        i = min(len(all_stat[name]['sway'][3]), len(all_stat[name]['ground'][2]), len(all_stat[name]['moea'][3]))
-        print scipy.stats.wilcoxon(all_stat[name]['ground'][3][:i], all_stat[name]['sway'][3][:i])
-        print scipy.stats.wilcoxon(all_stat[name]['sway'][3][:i], all_stat[name]['moea'][3][:i])
-        print scipy.stats.wilcoxon(all_stat[name]['ground'][3][:i], all_stat[name]['moea'][3][:i])
-        print('----')
 
-    # pdb.set_trace()
-    # with open('/Users/jianfeng/Desktop/tse_rs/paper_material/xomo.stat', 'w') as f:
-    #     pickle.dump(all_stat, f)
+        #
+        # from scipy.stats import ttest_ind
+        # import scipy
+        # # # print ttest_ind(all_stat[name]['ground'][3][:6], all_stat[name]['sway'][3][:6])
+        # i = min(len(all_stat[name]['sway'][3]), len(all_stat[name]['ground'][2]), len(all_stat[name]['moea'][3]))
+        # print scipy.stats.wilcoxon(all_stat[name]['ground'][3][:i], all_stat[name]['sway'][3][:i])
+
+        # print('----')
