@@ -83,7 +83,7 @@ def comparing(part1, part2):
 
 def get_sway_res(model):
     # load the  10k sat solutions
-    with open('/Users/jianfeng/Desktop/tse_rs/' + model.name + '.txt', 'r') as f:
+    with open('./tse_rs/' + model.name + '.txt', 'r') as f:
         candidates = list()
         for l in f:
             can = model.Individual(l.strip('\n'))
@@ -102,7 +102,7 @@ if __name__ == '__main__':
             res = get_sway_res(model)
             finish_time = time.time()
             # save the results
-            with open(request_new_file('/Users/jianfeng/Desktop/tse_rs/sway', name), 'w') as f:
+            with open(request_new_file('./tse_rs/sway', name), 'w') as f:
                 f.write('T:' + str(start_time) + '\n~~~\n')
                 f.write('T:' + str(finish_time) + '\n')
                 for i in res:

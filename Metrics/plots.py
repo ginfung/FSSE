@@ -53,7 +53,7 @@ def plot(model, t_i):
     :param t_i: 0-gd, 1-gs, 2-pfs, 3-hv
     :return:
     """
-    with open('/Users/jianfeng/Desktop/tse_rs/paper_material/spl.stat', 'r') as f:
+    with open('./tse_rs/paper_material/spl.stat', 'r') as f:
         data = pickle.load(f)
         data = data[model]
 

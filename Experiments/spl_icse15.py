@@ -31,33 +31,31 @@ import sys
 
 if __name__ == '__main__':
     # save_stdout = sys.stdout
-    # models = ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
-    models = ['linux']
+    models = ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
     for name in models:
         fm = DimacsModel(name)
         start_at = time.time()
 
-        # sys.stdout = open('/Users/jianfeng/.Trash/trash', 'w')
         res = SATIBEA.action(fm)
         # sys.stdout = save_stdout
         print(time.time()-start_at)
-        # # save the results
-        # with open(request_new_file('/Users/jianfeng/Desktop/tse_rs/satibea', name), 'w') as f:
-        #     f.write('T:' + str(start_at) + '\n')
-        #     f.write('~~~\n')
-        #     for log in res[1]:
-        #         gen = log['gen']
-        #         fitness = log['fitness']
-        #         at = log['time']
-        #
-        #         if fitness == 'pass':
-        #             continue
-        #
-        #         f.write('T:' + str(at)+'\n')
-        #         f.write('Gen: ' + str(gen) + '\n')
-        #
-        #         for i in fitness:
-        #             f.write(' '.join(map(str, i)))
-        #             f.write('\n')
-        #
-        #         f.write('~~~\n')
+        # save the results
+        with open(request_new_file('./tse_rs/satibea', name), 'w') as f:
+            f.write('T:' + str(start_at) + '\n')
+            f.write('~~~\n')
+            for log in res[1]:
+                gen = log['gen']
+                fitness = log['fitness']
+                at = log['time']
+
+                if fitness == 'pass':
+                    continue
+
+                f.write('T:' + str(at)+'\n')
+                f.write('Gen: ' + str(gen) + '\n')
+
+                for i in fitness:
+                    f.write(' '.join(map(str, i)))
+                    f.write('\n')
+
+                f.write('~~~\n')

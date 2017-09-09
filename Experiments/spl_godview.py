@@ -62,7 +62,7 @@ def action(fm):
     res = emo.sortNondominated(candidates, len(candidates), True)
     finish_time = time.time()
 
-    with open(request_new_file('/Users/jianfeng/Desktop/tse_rs/god', fm.name), 'w') as f:
+    with open(request_new_file('./tse_rs/god', fm.name), 'w') as f:
         f.write('T:'+str(start_time)+'\n~~~\n')
         f.write('T:'+str(finish_time)+'\n')
         for front in res[0]:
