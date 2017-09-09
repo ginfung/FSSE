@@ -51,5 +51,5 @@ def fetch_all_files(folder, model_name):
 
 
 if __name__ == '__main__':
-    print(request_new_file('/Users/jianfeng/Desktop/tse_rs/paper_material', 'osp'))
-    print(fetch_all_files('/Users/jianfeng/Desktop/tse_rs/paper_material', 'osp'))
+    print(request_new_file('./tse_rs/paper_material', 'osp'))
+    print(fetch_all_files('./tse_rs/paper_material', 'osp'))
