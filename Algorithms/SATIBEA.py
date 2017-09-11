@@ -34,6 +34,7 @@ import time
 import pycosat
 import copy
 import pdb
+import os
 import random
 import debug
 
@@ -47,12 +48,14 @@ def action(fm):
 
     def prepare():
         global dead, mandatory
-        with open('/Users/jianfeng/git/SPL/dimacs_data/'+fm.name+'.dimacs.dead', 'r') as f:
+        with open(os.path.dirname(os.path.abspath(__file__)) + '/../Benchmarks/dimacs/' + fm.name + '.dimacs.dead',
+                  'r') as f:
             dead = f.readlines()
-        with open('/Users/jianfeng/git/SPL/dimacs_data/'+fm.name+'.dimacs.mandatory', 'r') as f:
+        with open(os.path.dirname(os.path.abspath(__file__)) + '/../Benchmarks/dimacs/' + fm.name + '.dimacs.mandatory',
+                  'r') as f:
             mandatory = f.readlines()
-        dead = map(lambda i: int(i[:-1])-1, dead)
-        mandatory = map(lambda i: int(i[:-1])-1, mandatory)
+        dead = map(lambda i: int(i[:-1]) - 1, dead)
+        mandatory = map(lambda i: int(i[:-1]) - 1, mandatory)
 
     def sat_gen_valid_pop(n):
         pops = list()
@@ -79,19 +82,19 @@ def action(fm):
             # apply standard mutation
             for x in range(len(decs)):
                 if random.random() < 0.001 and x not in dead and x not in mandatory:
-                    decs[x] = str(1-int(decs[x]))
+                    decs[x] = str(1 - int(decs[x]))
         else:
             if random.random() < 0.5:
                 # apply smart mutation
                 for x in range(len(decs)):
                     if random.random() < 0.001 and x not in dead and x not in mandatory:
-                        decs[x] = str(1-int(decs[x]))
+                        decs[x] = str(1 - int(decs[x]))
 
                 false_list = list()
                 for c_i, c in enumerate(fm.cnfs):
                     corr = False
                     for x in c:
-                        if (x>0 and decs[abs(x)-1] == '1') or (x<0 and decs[abs(x)-1] == '0'):
+                        if (x > 0 and decs[abs(x) - 1] == '1') or (x < 0 and decs[abs(x) - 1] == '0'):
                             corr = True
                             break
                     if not corr:
@@ -102,9 +105,9 @@ def action(fm):
                     for i, v in enumerate(decs):
                         if i in false_list: continue
                         if v == '1':
-                            cnf.append([i+1])
+                            cnf.append([i + 1])
                         else:
-                            cnf.append([-i-1])
+                            cnf.append([-i - 1])
                     for x in cnf: random.shuffle(x)
                     random.shuffle(cnf)
                     sol = pycosat.solve(cnf, vars=fm.featureNum)
@@ -126,7 +129,7 @@ def action(fm):
     def sat_ibea_cx(ind1, ind2):
         dec1 = [i for i in ind1]
         dec2 = [i for i in ind2]
-        break_point = random.randint(1, len(dec1)-1)
+        break_point = random.randint(1, len(dec1) - 1)
         for i in range(len(dec1)):
             if i > break_point: break
             dec1[i], dec2[i] = dec2[i], dec1[i]

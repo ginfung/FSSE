@@ -90,3 +90,4 @@ ENV/
 
 .idea
 tmp_*
+tse_rs/

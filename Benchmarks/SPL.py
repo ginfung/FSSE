@@ -2,11 +2,11 @@ from __future__ import division
 
 from deap import base, creator, tools
 import re
+import os
 import requests
 import pdb
 
-
-sign = lambda x: '1' if x>0 else '0'
+sign = lambda x: '1' if x > 0 else '0'
 
 
 def load_product_url(fm_name):
@@ -19,7 +19,9 @@ def load_product_url(fm_name):
     stat_line_pattern = re.compile(r'p cnf (\d+) (\d+)')
 
     features_names_dict = dict()
-    source = requests.get('https://zenodo.org/record/265808/files/'+fm_name+'.dimacs').text.encode('ascii').split('\n')
+    source = requests.get(
+        os.path.dirname(os.path.abspath(__file__)) + '/../Benchmarks/dimacs/' + fm_name + '.dimacs').text.encode(
+        'ascii').split('\n')
 
     for line in source:
         if line.startswith('c'):  # record the feature names
@@ -41,7 +43,7 @@ def load_product_url(fm_name):
 
             # transfer the features_names into the list if dimacs file is valid
             assert len(features_names_dict) == featureNum, "There exists some features without any name"
-            for i in range(1, featureNum+1):
+            for i in range(1, featureNum + 1):
                 feature_names.append(features_names_dict[i])
             del features_names_dict
 
@@ -64,11 +66,12 @@ class DimacsModel:
         self.used_before = []
         self.defects = []
         while True:
-            content = requests.get('https://zenodo.org/record/265807/files/'+fm_name+'.dimacs.augment')
+            content = requests.get(
+                os.path.dirname(os.path.abspath(__file__)) + '/../Benchmarks/dimacs/' + fm_name + '.dimacs.augment')
             if content.status_code == 200: break
         lines = content.text.encode('ascii')
         lines = lines.split('\n')[1:]
-        lines = map(lambda x:x.rstrip(), lines)
+        lines = map(lambda x: x.rstrip(), lines)
         for l in lines:
             if not len(l): continue
             _, a, b, c = l.split(" ")
@@ -100,7 +103,7 @@ class DimacsModel:
         for c_i, c in enumerate(self.cnfs):
             corr = False
             for x in c:
-                if sign(x) == ind[abs(x)-1]:
+                if sign(x) == ind[abs(x) - 1]:
                     corr = True
                     break
             if not corr:
@@ -118,46 +121,45 @@ class DimacsModel:
                 else:
                     unused += 1
         if normalized:
-            ind.fitness.values = (convio/self.cnfNum,
-                                  unselected/self.featureNum,
-                                  unused/self.featureNum,
-                                  defect/sum(self.defects),
-                                  cost/sum(self.cost))
+            ind.fitness.values = (convio / self.cnfNum,
+                                  unselected / self.featureNum,
+                                  unused / self.featureNum,
+                                  defect / sum(self.defects),
+                                  cost / sum(self.cost))
         else:
             ind.fitness.values = (convio, unselected, unused, defect, cost)
-
 
         return ind.fitness.values
 
         #
-    # @staticmethod
-    # def bit_flip_mutate(individual):
-    #     # modification log -- not use the mutateRate parameter. just select one bit and flip that
-    #     n = len(individual)
-    #     i = random.randint(0, n-1)
-    #     T = type(individual)
-    #     if individual[i] == '0':
-    #         individual = T(individual[:i]+'1'+individual[i+1:])
-    #     del individual.fitness.values
-    #     return individual,
-    #
-    # @staticmethod
-    # def cxTwoPoint(ind1, ind2):
-    #     v1 = list(ind1[:])
-    #     v2 = list(ind2[:])
-    #     split = random.randint(0, len(v1)-1)
-    #     for i in range(split):
-    #         v1[i], v2[i] = v2[i], v1[i]
-    #     T = type(ind1)
-    #     ind1 = T(''.join(v1))
-    #     ind2 = T(''.join(v2))
-    #     del ind1.fitness.values
-    #     del ind2.fitness.values
-    #     return ind1, ind2
+        # @staticmethod
+        # def bit_flip_mutate(individual):
+        #     # modification log -- not use the mutateRate parameter. just select one bit and flip that
+        #     n = len(individual)
+        #     i = random.randint(0, n-1)
+        #     T = type(individual)
+        #     if individual[i] == '0':
+        #         individual = T(individual[:i]+'1'+individual[i+1:])
+        #     del individual.fitness.values
+        #     return individual,
+        #
+        # @staticmethod
+        # def cxTwoPoint(ind1, ind2):
+        #     v1 = list(ind1[:])
+        #     v2 = list(ind2[:])
+        #     split = random.randint(0, len(v1)-1)
+        #     for i in range(split):
+        #         v1[i], v2[i] = v2[i], v1[i]
+        #     T = type(ind1)
+        #     ind1 = T(''.join(v1))
+        #     ind2 = T(''.join(v2))
+        #     del ind1.fitness.values
+        #     del ind2.fitness.values
+        #     return ind1, ind2
+
 
 if __name__ == '__main__':
     p = DimacsModel('webportal')
     # ind = p.Individual('1000111000000000010000000001111111000001100100000')
     # p.eval(ind)
     # pdb.set_trace()
-

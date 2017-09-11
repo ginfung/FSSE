@@ -7,9 +7,10 @@ import pdb
 
 if __name__ == '__main__':
     model = pre_defined()[2]
-    for repeat in range(1):
+    for x in [0, 1, 2, 3]:
+        model = pre_defined()[x]
         start_time = time.time()
-        res = action(model, mu=300, ngen=10000//100, cxpb=0.9, mutpb=0.15)
+        res = action(model, mu=300, ngen=10000 // 100, cxpb=0.9, mutpb=0.15)
         finish_time = time.time()
 
         with open(request_new_file('./tse_rs/nsga2', model.name), 'w') as f:
@@ -18,5 +19,3 @@ if __name__ == '__main__':
             for i in res:
                 f.write(' '.join(map(str, i.fitness.values)))
                 f.write('\n')
-
-        print('******   ' + str(repeat) + '   ******')
