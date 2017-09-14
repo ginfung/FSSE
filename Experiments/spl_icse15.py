@@ -32,13 +32,14 @@ import sys
 if __name__ == '__main__':
     # save_stdout = sys.stdout
     models = ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
+    # models = ['webportal']
     for name in models:
         fm = DimacsModel(name)
         start_at = time.time()
 
         res = SATIBEA.action(fm)
         # sys.stdout = save_stdout
-        print(time.time()-start_at)
+        print(time.time() - start_at)
         # save the results
         with open(request_new_file('./tse_rs/satibea', name), 'w') as f:
             f.write('T:' + str(start_at) + '\n')
@@ -51,7 +52,7 @@ if __name__ == '__main__':
                 if fitness == 'pass':
                     continue
 
-                f.write('T:' + str(at)+'\n')
+                f.write('T:' + str(at) + '\n')
                 f.write('Gen: ' + str(gen) + '\n')
 
                 for i in fitness:

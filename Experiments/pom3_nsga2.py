@@ -6,8 +6,7 @@ import time
 import pdb
 
 if __name__ == '__main__':
-    model = pre_defined()[2]
-    for x in [0, 1, 2, 3]:
+    for x in [0, 1, 2]:
         model = pre_defined()[x]
         start_time = time.time()
         res = action(model, mu=300, ngen=10000 // 100, cxpb=0.9, mutpb=0.15)

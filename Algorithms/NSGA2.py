@@ -2,8 +2,6 @@ from __future__ import division
 
 from deap import algorithms
 from deap import tools
-from Benchmarks import XOMO
-from deap.benchmarks.tools import diversity, convergence, hypervolume
 from deap.tools.emo import sortNondominated
 from Metrics.gs import GS
 from Metrics.gd import GD
@@ -11,15 +9,18 @@ from Metrics.hv import HyperVolume
 import copy
 import time
 import numpy
+import os
 import random
 import debug
 import pdb
+
 
 def random_pop(model, N):
     pop = list()
     for _ in range(N):
         pop.append(model.Individual([random.random() for _ in range(model.decsNum)]))
     return pop
+
 
 def _get_frontier(pop):
     """
@@ -33,6 +34,7 @@ def _get_frontier(pop):
         if f not in uniques:
             uniques.append(f)
     return uniques
+
 
 def self_stats(pop, model, PF0):
     PFc = _get_frontier(pop)
@@ -51,12 +53,12 @@ def action(model, mu, ngen, cxpb, mutpb):
     toolbox = model.toolbox
 
     toolbox.register('mate', tools.cxOnePoint)
-    toolbox.register('mutate', tools.mutPolynomialBounded, low=0, up=1.0, eta=20.0, indpb=1.0/model.decsNum)
+    toolbox.register('mutate', tools.mutPolynomialBounded, low=0, up=1.0, eta=20.0, indpb=1.0 / model.decsNum)
     toolbox.register('select', tools.selNSGA2)
 
     stats = tools.Statistics(lambda ind: ind)
     PF0 = list()
-    with open('/Users/jianfeng/git/FSSE/Metrics/PF_0/' + model.name + '.txt', 'r') as f:
+    with open(os.path.dirname(os.path.abspath(__file__))+'/../Metrics/PF_0/' + model.name + '.txt', 'r') as f:
         for l in f:
             e = l.strip('\n').split(' ')
             e = [float(i) for i in e]
@@ -87,14 +89,15 @@ def action(model, mu, ngen, cxpb, mutpb):
             model.eval(ind1)
             model.eval(ind2)
 
-        pop = toolbox.select(pop+offspring, mu)
+        pop = toolbox.select(pop + offspring, mu)
         # print(gen)
         record = stats.compile(pop)
         logbook.record(gen=gen, **record)
         print(logbook.stream)
-        print(time.time()-t)
+        print(time.time() - t)
 
     return pop
+
 
 if __name__ == '__main__':
     # simulating grid search

@@ -114,8 +114,8 @@ def get_sway_res(model):
 
 
 if __name__ == '__main__':
-    for repeat in range(20):
-        ii = [0, 1, 2, 3]
+    for repeat in range(10):
+        ii = [0, 1, 2]
         for i in ii:
             POM3_model = pre_defined()[i]
             start_time = time.time()

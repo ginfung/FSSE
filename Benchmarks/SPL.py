@@ -19,9 +19,8 @@ def load_product_url(fm_name):
     stat_line_pattern = re.compile(r'p cnf (\d+) (\d+)')
 
     features_names_dict = dict()
-    source = requests.get(
-        os.path.dirname(os.path.abspath(__file__)) + '/../Benchmarks/dimacs/' + fm_name + '.dimacs').text.encode(
-        'ascii').split('\n')
+    filen = os.path.dirname(os.path.abspath(__file__)) + '/../Benchmarks/dimacs/' + fm_name + '.dimacs'
+    source = open(filen, 'r').read().split('\n')
 
     for line in source:
         if line.startswith('c'):  # record the feature names
@@ -65,12 +64,10 @@ class DimacsModel:
         self.cost = []
         self.used_before = []
         self.defects = []
-        while True:
-            content = requests.get(
-                os.path.dirname(os.path.abspath(__file__)) + '/../Benchmarks/dimacs/' + fm_name + '.dimacs.augment')
-            if content.status_code == 200: break
-        lines = content.text.encode('ascii')
-        lines = lines.split('\n')[1:]
+
+        filen = os.path.dirname(os.path.abspath(__file__)) + '/../Benchmarks/dimacs/' + fm_name + '.dimacs.augment'
+        lines = open(filen, 'r').read().split('\n')[1:]
+
         lines = map(lambda x: x.rstrip(), lines)
         for l in lines:
             if not len(l): continue

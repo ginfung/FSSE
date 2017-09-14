@@ -37,10 +37,12 @@ import pdb
 class FixedOrderFormatter(ScalarFormatter):
     """Formats axis ticks using scientific notation with a constant order of
     magnitude"""
+
     def __init__(self, order_of_mag=0, useOffset=True, useMathText=False):
         self._order_of_mag = order_of_mag
         ScalarFormatter.__init__(self, useOffset=useOffset,
                                  useMathText=useMathText)
+
     def _set_orderOfMagnitude(self, range):
         """Over-riding this to avoid having orderOfMagnitude reset elsewhere"""
         self.orderOfMagnitude = self._order_of_mag
@@ -62,13 +64,13 @@ def plot(model, t_i):
     moea = data['moea'][t_i]
     # pdb.set_trace()
     import random
-    for _ in range(30 - len(ground)):
-        ground.append(random.choice([0.3, -0.3])*random.random()*(max(sway)-min(sway))+min(sway))
-    for _ in range(30 - len(moea)):
-        moea.append(random.choice([0.3, -0.3])*random.random()*(max(sway)-min(sway))+min(sway))
-    sway = [i-0.0001 for i in sway]
+    # for _ in range(30 - len(ground)):
+    #     ground.append(random.choice([0.3, -0.3])*random.random()*(max(sway)-min(sway))+min(sway))
+    # for _ in range(30 - len(moea)):
+    #     moea.append(random.choice([0.3, -0.3])*random.random()*(max(sway)-min(sway))+min(sway))
+    sway = [i - 0.0001 for i in sway]
     data = [ground, sway, moea]
-    maxy = max(max(ground), max(sway), max(moea))*3
+    maxy = max(max(ground), max(sway), max(moea)) * 3
     fig = plt.figure(1, figsize=(3.2, 3))
     ax = fig.add_subplot(111)
     # ax.set_xticklabels(['GROUND', 'SWAY', 'MOEA'])
@@ -90,25 +92,26 @@ def plot(model, t_i):
         # b.set(color=col, facecolor='white')
         b.set_facecolor(col)
 
-    from scipy.stats import ttest_ind
-    import scipy
-    # print ttest_ind(all_stat[name]['ground'][3][:6], all_stat[name]['sway'][3][:6])
-    i = min(len(ground), len(sway), len(moea))
-    print scipy.stats.wilcoxon(ground[:i], sway[:i])
-    print scipy.stats.wilcoxon(sway[:i], moea[:i])
-    print scipy.stats.wilcoxon(ground[:i], moea[:i])
-    print('----')
-    print('~~')
+        # from scipy.stats import ttest_ind
+        # import scipy
+        # # print ttest_ind(all_stat[name]['ground'][3][:6], all_stat[name]['sway'][3][:6])
+        # i = min(len(ground), len(sway), len(moea))
+        # print scipy.stats.wilcoxon(ground[:i], sway[:i])
+        # print scipy.stats.wilcoxon(sway[:i], moea[:i])
+        # print scipy.stats.wilcoxon(ground[:i], moea[:i])
+        # print('----')
+        # print('~~')
 
-    # ax.yaxis.set_major_formatter(FixedOrderFormatter(-2))
-    # ax.get_yaxis().get_major_formatter().set_useOffset(True)
-    # plt.show()
-    # fig.savefig('/Users/jianfeng/Desktop/tse_rs/paper_material/imgs/gd/'+model+'.png', bbox_inches='tight')
-    # plt.clf()
+        # ax.yaxis.set_major_formatter(FixedOrderFormatter(-2))
+        # ax.get_yaxis().get_major_formatter().set_useOffset(True)
+        # plt.show()
+        # fig.savefig('/Users/jianfeng/Desktop/tse_rs/paper_material/imgs/gd/'+model+'.png', bbox_inches='tight')
+        # plt.clf()
+
 
 if __name__ == '__main__':
     # for m in ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']:
     for m in ['freebsd']:
-    # for m in ['osp', 'osp2', 'ground', 'flight']:
+        # for m in ['osp', 'osp2', 'ground', 'flight']:
         plot(m, 0)
-    # plot('osp', 0)
+        # plot('osp', 0)
