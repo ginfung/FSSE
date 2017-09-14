@@ -30,6 +30,7 @@ from __future__ import division
 from Benchmarks.SPL import DimacsModel
 from deap import algorithms
 from deap import tools
+from selIBEA import selIBEA
 import time
 import pycosat
 import copy
@@ -40,7 +41,7 @@ import debug
 
 
 def action(fm):
-    fm.toolbox.register('select', tools.selIBEA)
+    fm.toolbox.register('select', selIBEA)
 
     print('start!')
 

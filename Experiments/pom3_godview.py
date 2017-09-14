@@ -47,7 +47,7 @@ def action(model):
     res = emo.sortNondominated(candidates, len(candidates), True)
     print('finish selection.')
     finish_time = time.time()
-    with open(request_new_file('./tse_rs/god', model.name), 'w') as f:
+    with open(e('./tse_rs/god', model.name), 'w') as f:
         f.write('T:' + str(start_time) + '\n~~~\n')
         f.write('T:' + str(finish_time) + '\n')
         for front in res[0]:
@@ -60,8 +60,8 @@ def action(model):
 
 
 if __name__ == '__main__':
-    for repeat in range(6):
-        ii = [2]
+    for repeat in range(1):
+        ii = [0, 1, 2]
         for i in ii:
             print(i)
             POM3_model = pre_defined()[i]

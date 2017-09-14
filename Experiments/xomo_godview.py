@@ -60,7 +60,7 @@ def action(model):
 
 
 if __name__ == '__main__':
-    for repeat in range(6):
+    for repeat in range(1):
         ii = [0, 1, 2, 3]
         for i in ii:
             print(i)
