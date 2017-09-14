@@ -28,53 +28,90 @@ from Benchmarks.SPL import DimacsModel
 from repeats import request_new_file
 from operator import itemgetter
 from itertools import groupby
+import pycosat
+import random
+import os
+import copy
 import time
 import pdb
 import debug
 
 """
-Evaluating all 10k SAT solver results, then use usga-ii sorting to get the frontier
+Evaluating all 10k SAT solver results, then use nsga-ii sorting to get the frontier
 """
 
 
 def action(fm):
-    # laod the 10k sat solutions
+    # get the 10k sat solutions
     candidates = list()
-    with open('/Users/jianfeng/Desktop/tse_rs/' + fm.name + '.txt', 'r') as f:
-        for l in f:
-            can = fm.Individual(l.strip('\n'))
-            candidates.append(can)
+
+    def sat_gen_valid_pop(n):
+        pops = list()
+        cnf = copy.deepcopy(fm.cnfs)
+        while len(pops) < n:
+            for index, sol in enumerate(pycosat.itersolve(cnf)):
+                new_ind = fm.Individual(''.join(['1' if i > 0 else '0' for i in sol]))
+                pops.append(new_ind)
+                print(index)
+                if index > 100:
+                    break
+            for x in cnf:
+                random.shuffle(x)
+            random.shuffle(cnf)
+
+        # for c in range(n):
+        #     if c % 1 == 0: print(c)
+        #     for sol in pycosat.itersolve(cnf):
+        #         new_ind = fm.Individual(''.join(['1' if i > 0 else '0' for i in sol]))
+        #         print 'x'
+        #
+        #     sol = pycosat.solve(cnf, vars=fm.featureNum)
+        #     # ground_sol = copy.deepcopy(sol)
+        #     if isinstance(sol, list):
+        #         new_ind = fm.Individual(''.join(['1' if i > 0 else '0' for i in sol]))
+        #         pops.append(new_ind)
+        #         cnf.append([-x for x in sol])
+        #         if c % 100 == 0:
+        #             for x in cnf:
+        #                 random.shuffle(x)
+        #             random.shuffle(cnf)
+        #     else:
+        #         break
+        random.shuffle(pops)
+        return pops
+
+    print('start gen ' + fm.name)
+    pops = sat_gen_valid_pop(10000)
+    print('finish gen ' + fm.name)
+    candidates = [fm.Individual(i) for i in pops]
+
+    # pdb.set_trace()
+    # with open('/Users/jianfeng/Desktop/tse_rs/' + fm.name + '.txt', 'r') as f:
+    #     for l in f:
+    #         can = fm.Individual(l.strip('\n'))
+    #         candidates.append(can)
     # evaluate all
     start_time = time.time()
     for can in candidates:
         fm.eval(can)
-    #     o = (round(i, 2) for i in can.fitness.values)
-    #     can.fitness.values = o
-    #
-    # candidates.sort(key=lambda i: i.fitness.values)
-    # x = 0
-    # for k, g in groupby(candidates, key=lambda i: i.fitness.values):
-    #     x += 1
-    #     print(k)
-    # pdb.set_trace()
-    mid_time = time.time()
 
     res = emo.sortNondominated(candidates, len(candidates), True)
     finish_time = time.time()
 
     with open(request_new_file('./tse_rs/god', fm.name), 'w') as f:
-        f.write('T:'+str(start_time)+'\n~~~\n')
-        f.write('T:'+str(finish_time)+'\n')
+        f.write('T:' + str(start_time) + '\n~~~\n')
+        f.write('T:' + str(finish_time) + '\n')
         for front in res[0]:
             f.write(' '.join(map(str, front.fitness.values)))
             f.write('\n')
 
         f.write('~~~\n')
 
+
 if __name__ == '__main__':
-    for repeat in range(6):
+    for repeat in range(1):
         models = ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
-        # models = ['webportal']
+        # models = ['eshop']
         for name in models:
             model = DimacsModel(name)
             action(model)
