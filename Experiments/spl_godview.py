@@ -77,6 +77,7 @@ def action(fm):
         random.shuffle(pops)
         return pops
 
+    start_time = time.time()
     print('start gen ' + fm.name)
     pops = sat_gen_valid_pop(10000)
     print('finish gen ' + fm.name)
@@ -88,7 +89,6 @@ def action(fm):
     #         can = fm.Individual(l.strip('\n'))
     #         candidates.append(can)
     # evaluate all
-    start_time = time.time()
     for can in candidates:
         fm.eval(can)
 

@@ -104,21 +104,21 @@ def sat_gen_valid_pop(fm, n):
 
 def get_sway_res(model):
     # load the  10k sat solutions
-    # with open('./tse_rs/' + model.name + '.txt', 'r') as f:
-    #     candidates = list()
-    #     for l in f:
-    #         can = model.Individual(l.strip('\n'))
-    #         candidates.append(can)
+    with open('./tse_rs/' + model.name + '.txt', 'r') as f:
+        candidates = list()
+        for l in f:
+            can = model.Individual(l.strip('\n'))
+            candidates.append(can)
 
-    candidates = sat_gen_valid_pop(model, 10000)
+    # candidates = sat_gen_valid_pop(model, 10000)
     res = sway(candidates, model.eval, partial(split_products, groupC=min(15, model.featureNum // 7)), comparing)
     return res
 
 
 if __name__ == '__main__':
-    # models = ['webportal']
-    models = ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
-    for repeat in range(1):
+    # models = ['eshop']
+    models = [ 'fiasco', 'freebsd', 'linux']
+    for repeat in range(5):
         for name in models:
             print(name)
             model = DimacsModel(name)
