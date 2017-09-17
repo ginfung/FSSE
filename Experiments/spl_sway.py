@@ -30,12 +30,16 @@ from functools import partial
 from repeats import request_new_file
 import random
 import time
+import copy
+import pycosat
 import pdb
+
 
 def count1(decint):
     return popcount(mpz(decint))
 
-def split_products(pop, groupC = 5):
+
+def split_products(pop, groupC=5):
     rand = random.choice(pop)
     center = count1(int(rand, 2))
 
@@ -50,21 +54,21 @@ def split_products(pop, groupC = 5):
     poptuple = [(p, i, j) for p, i, j in zip(pop, workloads, dists)]
 
     # sort by the workloads
-    poptuple = sorted(poptuple, key=lambda i:i[1])
+    poptuple = sorted(poptuple, key=lambda i: i[1])
 
-    n = int(len(poptuple)/groupC)
-    groups = [poptuple[i*n:i*n+n] for i in range(groupC)]
+    n = int(len(poptuple) / groupC)
+    groups = [poptuple[i * n:i * n + n] for i in range(groupC)]
 
     west, east, westItems, eastItems = list(), list(), list(), list()
 
     for g in groups:
-        k = sorted(g, key=lambda i:i[2])
+        k = sorted(g, key=lambda i: i[2])
 
         # filling the answers
         west.append(k[0][0])
         east.append(k[-1][0])
-        westItems.extend(map(lambda i: i[0], k[:len(k)//2]))
-        eastItems.extend(map(lambda i: i[0], k[len(k)//2:]))
+        westItems.extend(map(lambda i: i[0], k[:len(k) // 2]))
+        eastItems.extend(map(lambda i: i[0], k[len(k) // 2:]))
 
     return west, east, westItems, eastItems
 
@@ -81,20 +85,40 @@ def comparing(part1, part2):
 
     return onewin >= twowin
 
+
+def sat_gen_valid_pop(fm, n):
+    pops = list()
+    cnf = copy.deepcopy(fm.cnfs)
+    while len(pops) < n:
+        for index, sol in enumerate(pycosat.itersolve(cnf)):
+            new_ind = fm.Individual(''.join(['1' if i > 0 else '0' for i in sol]))
+            pops.append(new_ind)
+            if index > 20:
+                break
+        for x in cnf:
+            random.shuffle(x)
+        random.shuffle(cnf)
+    random.shuffle(pops)
+    return pops
+
+
 def get_sway_res(model):
     # load the  10k sat solutions
-    with open('./tse_rs/' + model.name + '.txt', 'r') as f:
-        candidates = list()
-        for l in f:
-            can = model.Individual(l.strip('\n'))
-            candidates.append(can)
-    res = sway(candidates, model.eval, partial(split_products, groupC=min(15, model.featureNum//7)), comparing)
+    # with open('./tse_rs/' + model.name + '.txt', 'r') as f:
+    #     candidates = list()
+    #     for l in f:
+    #         can = model.Individual(l.strip('\n'))
+    #         candidates.append(can)
+
+    candidates = sat_gen_valid_pop(model, 10000)
+    res = sway(candidates, model.eval, partial(split_products, groupC=min(15, model.featureNum // 7)), comparing)
     return res
+
 
 if __name__ == '__main__':
     # models = ['webportal']
     models = ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
-    for repeat in range(4):
+    for repeat in range(1):
         for name in models:
             print(name)
             model = DimacsModel(name)

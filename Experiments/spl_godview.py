@@ -43,8 +43,6 @@ Evaluating all 10k SAT solver results, then use nsga-ii sorting to get the front
 
 def action(fm):
     # get the 10k sat solutions
-    candidates = list()
-
     def sat_gen_valid_pop(n):
         pops = list()
         cnf = copy.deepcopy(fm.cnfs)
@@ -52,8 +50,7 @@ def action(fm):
             for index, sol in enumerate(pycosat.itersolve(cnf)):
                 new_ind = fm.Individual(''.join(['1' if i > 0 else '0' for i in sol]))
                 pops.append(new_ind)
-                print(index)
-                if index > 100:
+                if index > 20:
                     break
             for x in cnf:
                 random.shuffle(x)
