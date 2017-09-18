@@ -6,10 +6,10 @@ from Metrics.gd import GD
 from Metrics.gs import GS
 from repeats import fetch_all_files
 import numpy
+import warnings
 import pickle
 import pdb
 import debug
-
 
 PRODUCT_LINE_ONLY = False
 MINIMUM_PFS = 3
@@ -42,7 +42,7 @@ def _get_frontier(pop):
 
 def put_record_here(filename, model):
     def calc(PFc):
-        creator.create("FitnessMin", base.Fitness, weights=[-1.0]*len(PFc[0]))
+        creator.create("FitnessMin", base.Fitness, weights=[-1.0] * len(PFc[0]))
         creator.create("Individual", str, fitness=creator.FitnessMin)
 
         pop = list()
@@ -113,22 +113,20 @@ def put_record_here(filename, model):
     model, gd, gs, pfs, hv, _ = calc(PFc)
     return model, gd, gs, pfs, hv
 
+
+SOURCE_FOLDER = "/Users/jianfeng/Desktop/tse_rs/"
+
 if __name__ == '__main__':
-    import warnings
     warnings.filterwarnings("ignore")
-    import debug
     # models = ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
-    # models = ['linux']
     # PRODUCT_LINE_ONLY = True
 
-    # models = ['osp', 'osp2', 'ground', 'flight']
-    models = ['p3a', 'p3b', 'p3c']
+    models = ['osp', 'osp2', 'ground', 'flight', 'p3a', 'p3b', 'p3c']
 
     all_stat = dict()
     for name in models:
         all_stat[name] = dict()
-        #
-        files = fetch_all_files('/Users/jianfeng/Desktop/tse_rs/god', name)
+        files = fetch_all_files(SOURCE_FOLDER + 'god', name)
         gd, gs, pfs, hv = list(), list(), list(), list()
         for f in files:
             _, a, b, c, d = put_record_here(f, name)
@@ -140,9 +138,9 @@ if __name__ == '__main__':
             hv.append(d)
 
         all_stat[name]['ground'] = (gd, gs, pfs, hv)
-        # pdb.set_trace()
+
         ###############
-        files = fetch_all_files('/Users/jianfeng/Desktop/tse_rs/sway', name)
+        files = fetch_all_files(SOURCE_FOLDER + 'sway', name)
         gd, gs, pfs, hv = list(), list(), list(), list()
         for f in files:
             _, a, b, c, d = put_record_here(f, name)
@@ -157,7 +155,9 @@ if __name__ == '__main__':
         all_stat[name]['sway'] = (gd, gs, pfs, hv)
 
         ###############
-        files = fetch_all_files('/Users/jianfeng/Desktop/tse_rs/nsga2', name)
+        files1 = fetch_all_files(SOURCE_FOLDER + 'nsga2', name)
+        files2 = fetch_all_files(SOURCE_FOLDER + 'satibea', name)
+        file = files1 + files2
         gd, gs, pfs, hv = list(), list(), list(), list()
         for f in files:
             _, a, b, c, d = put_record_here(f, name)
@@ -170,7 +170,23 @@ if __name__ == '__main__':
 
         all_stat[name]['moea'] = (gd, gs, pfs, hv)
 
+        ###############
+        files = fetch_all_files(SOURCE_FOLDER + 'sanity', name)
+        gd, gs, pfs, hv = list(), list(), list(), list()
+        for f in files:
+            _, a, b, c, d = put_record_here(f, name)
+
+            if c < MINIMUM_PFS:
+                continue
+            gd.append(a)
+            gs.append(b)
+            pfs.append(c)
+            hv.append(d)
+
+        all_stat[name]['sanity'] = (gd, gs, pfs, hv)
+
         print(name)
+        pdb.set_trace()
         # print(map(numpy.median, all_stat[name]['ground']))
 
         #
