@@ -8,8 +8,8 @@ from repeats import fetch_all_files
 import numpy
 import warnings
 import pickle
-import pdb
 import debug
+import pdb
 
 PRODUCT_LINE_ONLY = False
 MINIMUM_PFS = 3
@@ -110,6 +110,9 @@ def put_record_here(filename, model):
             e = e[1:]
         PFc.append(e)
 
+    if len(PFc) == 0:
+        pdb.set_trace()
+
     model, gd, gs, pfs, hv, _ = calc(PFc)
     return model, gd, gs, pfs, hv
 
@@ -122,9 +125,17 @@ if __name__ == '__main__':
     # PRODUCT_LINE_ONLY = True
 
     models = ['osp', 'osp2', 'ground', 'flight', 'p3a', 'p3b', 'p3c']
+    models += ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
+
+    spls = ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
 
     all_stat = dict()
     for name in models:
+        if name in spls:
+            PRODUCT_LINE_ONLY = True
+        else:
+            PRODUCT_LINE_ONLY = False
+
         all_stat[name] = dict()
         files = fetch_all_files(SOURCE_FOLDER + 'god', name)
         gd, gs, pfs, hv = list(), list(), list(), list()
@@ -134,8 +145,7 @@ if __name__ == '__main__':
                 continue
             gd.append(a)
             gs.append(b)
-            pfs.append(c)
-            hv.append(d)
+            pfs.append(d)
 
         all_stat[name]['ground'] = (gd, gs, pfs, hv)
 
@@ -155,9 +165,11 @@ if __name__ == '__main__':
         all_stat[name]['sway'] = (gd, gs, pfs, hv)
 
         ###############
-        files1 = fetch_all_files(SOURCE_FOLDER + 'nsga2', name)
-        files2 = fetch_all_files(SOURCE_FOLDER + 'satibea', name)
-        file = files1 + files2
+        if PRODUCT_LINE_ONLY:
+            files = fetch_all_files(SOURCE_FOLDER + 'satibea', name)
+        else:
+            files = fetch_all_files(SOURCE_FOLDER + 'nsga2', name)
+
         gd, gs, pfs, hv = list(), list(), list(), list()
         for f in files:
             _, a, b, c, d = put_record_here(f, name)
@@ -186,14 +198,17 @@ if __name__ == '__main__':
         all_stat[name]['sanity'] = (gd, gs, pfs, hv)
 
         print(name)
-        pdb.set_trace()
-        # print(map(numpy.median, all_stat[name]['ground']))
 
-        #
-        # from scipy.stats import ttest_ind
-        # import scipy
-        # # # print ttest_ind(all_stat[name]['ground'][3][:6], all_stat[name]['sway'][3][:6])
-        # i = min(len(all_stat[name]['sway'][3]), len(all_stat[name]['ground'][2]), len(all_stat[name]['moea'][3]))
-        # print scipy.stats.wilcoxon(all_stat[name]['ground'][3][:i], all_stat[name]['sway'][3][:i])
+        # pdb.set_trace()
 
-        # print('----')
+    pickle.dump(all_stat, open('../Experiments/tse_rs/all.stat', 'wb'))
+    # print(map(numpy.median, all_stat[name]['ground']))
+
+    #
+    # from scipy.stats import ttest_ind
+    # import scipy
+    # # # print ttest_ind(all_stat[name]['ground'][3][:6], all_stat[name]['sway'][3][:6])
+    # i = min(len(all_stat[name]['sway'][3]), len(all_stat[name]['ground'][2]), len(all_stat[name]['moea'][3]))
+    # print scipy.stats.wilcoxon(all_stat[name]['ground'][3][:i], all_stat[name]['sway'][3][:i])
+
+    # print('----')

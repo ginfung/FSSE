@@ -162,7 +162,6 @@ def action(fm):
 
     pop = sat_gen_valid_pop(300)
     for p in pop: fm.eval(p)
-    # algorithms.eaMuPlusLambda(pop, fm.toolbox, 300, 300, 0.05, 0.98, 5)
     res = algorithms.eaMuPlusLambda(
         population=pop,
         toolbox=fm.toolbox,

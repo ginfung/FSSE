@@ -33,6 +33,7 @@ if __name__ == '__main__':
     # save_stdout = sys.stdout
     models = ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
     # models = ['webportal']
+    # for repeat in range(20):
     for name in models:
         fm = DimacsModel(name)
         start_at = time.time()
