@@ -92,3 +92,5 @@ ENV/
 tmp_*
 tse_rs/
 sanity*
+*.png
+*.eps
