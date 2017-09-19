@@ -26,6 +26,10 @@ from __future__ import division
 import matplotlib.pyplot as plt
 from matplotlib.ticker import ScalarFormatter
 import pickle
+from scipy.stats import ttest_ind
+from numpy import median
+import scipy
+import pdb
 
 
 class FixedOrderFormatter(ScalarFormatter):
@@ -42,7 +46,10 @@ class FixedOrderFormatter(ScalarFormatter):
         self.orderOfMagnitude = self._order_of_mag
 
 
-def plot(model, t_i):
+y_titles = ['Generational Distance', 'Genearted Spread', 'Pareto Front Size', 'Hypervolume']
+
+
+def plot(model, t_i, yround=4, lessIsBetter=True):
     """
     :param model:
     :param t_i: 0-gd, 1-gs, 2-pfs, 3-hv
@@ -55,24 +62,33 @@ def plot(model, t_i):
     ground = data['ground'][t_i]
     sway = data['sway'][t_i]
     moea = data['moea'][t_i]
+    sanity = data['sanity'][t_i]
+    # sanity = [i*1.3 for i in sanity]
     # sway = [i - 0.0001 for i in sway]
     # pdb.set_trace()
-    print(sum(sway)/len(sway))
-    print(sum(moea)/len(moea))
 
-    data = [ground, sway, moea]
-    maxy = max(max(ground), max(sway), max(moea)) * 1.2
-    miny = min(min(ground), min(sway), min(moea)) * 0.8
+    data = [sanity, ground, sway, moea]
+    maxy = max(max(sanity), max(ground), max(sway), max(moea)) * 1.2
+    miny = min(max(sanity), min(ground), min(sway), min(moea)) * 0.8
 
-    fig = plt.figure(1, figsize=(4.5, 2.3))
+    fig = plt.figure(1, figsize=(3.5, 2.3))
     ax = fig.add_subplot(111)
-    # ax.set_xticklabels(['GROUND', 'SWAY', 'MOEA'])
     ax.get_xaxis().tick_bottom()
     ax.get_yaxis().tick_left()
-    ax.set_ylim([miny, maxy])
+    ax.set_ylim([0, maxy])
     ax.set_xlim([0.1, 1.8])
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    y_ticks = [0, maxy * 0.25, maxy * 0.5, maxy * 0.75, maxy]
+    y_ticks = [round(i, yround) for i in y_ticks]
+    x_ticks = [0.5, 0.95, 1.4, 1.85]
+    ax.set_yticks(y_ticks)
 
-    box = ax.boxplot(data, patch_artist=True, widths=0.3, positions=[0.5, 1, 1.5], showfliers=False)
+    pos1 = ax.get_position()  # get the original position
+    pos2 = [pos1.x0 + 0.3, pos1.y0 + yround * 0.2, pos1.width, pos1.height]
+    ax.set_position(pos2)  # set a new position
+
+    box = ax.boxplot(data, patch_artist=True, widths=0.3, positions=x_ticks, showfliers=False)
     plt.tick_params(
         axis='x',  # changes apply to the x-axis
         which='major',  # both major and minor ticks are affected
@@ -81,13 +97,46 @@ def plot(model, t_i):
         right='off',
         labelbottom='off')  # labels along the bottom edge are off
 
-    # colors = ['green', 'orange', 'red']
-    # for b, col in zip(box['boxes'], colors):
-    #     b.set(color=col, facecolor='white')
-    #     b.set_facecolor(col)
+    red = ['red', '#FFE6E6']
+    green = ['green', '#76E959']
+    orange = ['orange', '#FFE5CC']
+
+    colors = ['black']
+    fcolors = ['#B2B2B2']
+
+    les = min(len(sway), len(moea))
+    p = scipy.stats.wilcoxon(sway[:les], moea[:les])[1]
+    if p < 0.05:
+        colors.append(orange[0])
+        fcolors.append(orange[1])
+    elif (lessIsBetter and median(sway) < median(moea)) or ((not lessIsBetter) and median(sway) > median(moea)):
+        colors.append(green[0])
+        fcolors.append(green[1])
+    else:
+        colors.append(red[0])
+        fcolors.append(red[1])
+
+    colors.append(orange[0])
+    fcolors.append(orange[1])
+
+    for ml, b, col, fcol in zip(box['medians'], box['boxes'], colors, fcolors):
+        b.set_color(col)
+        b.set(facecolor=fcol)
+        ml.set_color(col)  # median
 
     # ax.yaxis.set_major_formatter(FixedOrderFormatter(-2))
     ax.get_yaxis().get_major_formatter().set_useOffset(True)
+
+    if model == 'osp':
+        plt.title(y_titles[t_i], style='italic', fontsize=10)
+    if t_i == 0:
+        plt.ylabel(model, fontsize=10)
+
+    if model == 'linux':
+        plt.tick_params(labelbottom='on')
+        plt.xticks(x_ticks, ['RAND', 'GROUND', 'SWAY', 'MOEA'], rotation=30)
+        # ax.set_xticklabels(['RAND', 'GROUND', 'SWAY', 'MOEA'])
+
     # plt.show()
     fig.savefig('./gd/' + model + '.png', bbox_inches='tight')
     plt.clf()
