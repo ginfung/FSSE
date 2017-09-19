@@ -1,27 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# Copyright (C) 2016, Jianfeng Chen <jchen37@ncsu.edu>
-# vim: set ts=4 sts=4 sw=4 expandtab smartindent:
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-#  of this software and associated documentation files (the "Software"), to deal
-#  in the Software without restriction, including without limitation the rights
-#  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#  copies of the Software, and to permit persons to whom the Software is
-#  furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-#  all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-#  THE SOFTWARE.
-
-
 from __future__ import division
 import matplotlib.pyplot as plt
 from matplotlib.ticker import ScalarFormatter
@@ -30,6 +6,7 @@ from scipy.stats import ttest_ind
 from numpy import median
 import scipy
 import pdb
+import debug
 
 
 class FixedOrderFormatter(ScalarFormatter):
@@ -63,13 +40,11 @@ def plot(model, t_i, yround=4, lessIsBetter=True):
     sway = data['sway'][t_i]
     moea = data['moea'][t_i]
     sanity = data['sanity'][t_i]
-    # sanity = [i*1.3 for i in sanity]
-    # sway = [i - 0.0001 for i in sway]
-    # pdb.set_trace()
 
     data = [sanity, ground, sway, moea]
     maxy = max(max(sanity), max(ground), max(sway), max(moea)) * 1.2
-    miny = min(max(sanity), min(ground), min(sway), min(moea)) * 0.8
+
+    if t_i == 2: data = data[1:]
 
     fig = plt.figure(1, figsize=(3.5, 2.3))
     ax = fig.add_subplot(111)
@@ -82,6 +57,9 @@ def plot(model, t_i, yround=4, lessIsBetter=True):
     y_ticks = [0, maxy * 0.25, maxy * 0.5, maxy * 0.75, maxy]
     y_ticks = [round(i, yround) for i in y_ticks]
     x_ticks = [0.5, 0.95, 1.4, 1.85]
+    if t_i == 2:
+        y_ticks = y_ticks[:-1]
+        x_ticks = x_ticks[:-1]
     ax.set_yticks(y_ticks)
 
     pos1 = ax.get_position()  # get the original position
@@ -104,9 +82,22 @@ def plot(model, t_i, yround=4, lessIsBetter=True):
     colors = ['black']
     fcolors = ['#B2B2B2']
 
+    les = min(len(ground), len(moea))
+    p = scipy.stats.wilcoxon(ground[:les], moea[:les])[1]
+    if p < 0.005 and (abs(median(ground) - median(moea)) < median(moea) * 0.1):
+        colors.append(orange[0])
+        fcolors.append(orange[1])
+    elif (lessIsBetter and median(ground) < median(moea)) or ((not lessIsBetter) and median(ground) > median(moea)):
+        colors.append(green[0])
+        fcolors.append(green[1])
+    else:
+        colors.append(red[0])
+        fcolors.append(red[1])
+
     les = min(len(sway), len(moea))
     p = scipy.stats.wilcoxon(sway[:les], moea[:les])[1]
-    if p < 0.05:
+    # pdb.set_trace()
+    if p < 0.005 and (abs(median(sway) - median(moea)) < median(moea) * 0.1):
         colors.append(orange[0])
         fcolors.append(orange[1])
     elif (lessIsBetter and median(sway) < median(moea)) or ((not lessIsBetter) and median(sway) > median(moea)):
@@ -118,6 +109,11 @@ def plot(model, t_i, yround=4, lessIsBetter=True):
 
     colors.append(orange[0])
     fcolors.append(orange[1])
+    # pdb.set_trace()
+
+    if t_i == 2:
+        colors = colors[1:]
+        fcolors = fcolors[1:]
 
     for ml, b, col, fcol in zip(box['medians'], box['boxes'], colors, fcolors):
         b.set_color(col)
@@ -134,17 +130,28 @@ def plot(model, t_i, yround=4, lessIsBetter=True):
 
     if model == 'linux':
         plt.tick_params(labelbottom='on')
-        plt.xticks(x_ticks, ['RAND', 'GROUND', 'SWAY', 'MOEA'], rotation=30)
-        # ax.set_xticklabels(['RAND', 'GROUND', 'SWAY', 'MOEA'])
+        if t_i == 2:
+            plt.xticks(x_ticks, ['GROUND', 'SWAY', 'MOEA'], rotation=30)
+        else:
+            plt.xticks(x_ticks, ['RAND', 'GROUND', 'SWAY', 'MOEA'], rotation=30)
+            # ax.set_xticklabels(['RAND', 'GROUND', 'SWAY', 'MOEA'])
 
     # plt.show()
-    fig.savefig('./gd/' + model + '.png', bbox_inches='tight')
+    tmp_fold = ['gd', 'gs', 'pfs', 'hv']
+    fig.savefig('./' + tmp_fold[t_i] + '/' + model + '.png', bbox_inches='tight')
     plt.clf()
+
+
+# def combining():
+#     pass
 
 
 if __name__ == '__main__':
     for m in ['osp', 'osp2', 'ground', 'flight', 'p3a', 'p3b', 'p3c', 'webportal', 'eshop', 'fiasco', 'freebsd',
               'linux']:
-        # for m in ['osp']:
         print(m)
-        plot(m, 0)
+        plot(m, 0, 4, True)
+        plot(m, 1, 2, True)
+        plot(m, 2, 0, False)
+        plot(m, 3, 2, False)
+        # combining()

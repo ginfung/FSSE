@@ -145,8 +145,8 @@ if __name__ == '__main__':
                 continue
             gd.append(a)
             gs.append(b)
-            pfs.append(d)
-
+            pfs.append(c)
+            hv.append(d)
         all_stat[name]['ground'] = (gd, gs, pfs, hv)
 
         ###############
