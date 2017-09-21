@@ -8,7 +8,6 @@ from repeats import fetch_all_files
 import numpy
 import warnings
 import pickle
-import debug
 import pdb
 
 PRODUCT_LINE_ONLY = False
@@ -56,8 +55,6 @@ def put_record_here(filename, model):
         del pop
         PFc = _get_frontier(PFc)  # DEAP version
         PFc_list = [i.fitness.values for i in PFc]  # PYTHON LIST version
-        # print(PFc)
-        # print('----')
         if len(PFc) < MINIMUM_PFS:
             return model, -1, -1, len(PFc), -1, PFc
 
@@ -121,9 +118,6 @@ SOURCE_FOLDER = "/Users/jianfeng/Desktop/tse_rs/"
 
 if __name__ == '__main__':
     warnings.filterwarnings("ignore")
-    # models = ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
-    # PRODUCT_LINE_ONLY = True
-
     models = ['osp', 'osp2', 'ground', 'flight', 'p3a', 'p3b', 'p3c']
     models += ['webportal', 'eshop', 'fiasco', 'freebsd', 'linux']
 
@@ -199,16 +193,6 @@ if __name__ == '__main__':
 
         print(name)
 
-        # pdb.set_trace()
-
     pickle.dump(all_stat, open('../Experiments/tse_rs/all.stat', 'wb'))
-    # print(map(numpy.median, all_stat[name]['ground']))
+    print(all_stat)
 
-    #
-    # from scipy.stats import ttest_ind
-    # import scipy
-    # # # print ttest_ind(all_stat[name]['ground'][3][:6], all_stat[name]['sway'][3][:6])
-    # i = min(len(all_stat[name]['sway'][3]), len(all_stat[name]['ground'][2]), len(all_stat[name]['moea'][3]))
-    # print scipy.stats.wilcoxon(all_stat[name]['ground'][3][:i], all_stat[name]['sway'][3][:i])
-
-    # print('----')

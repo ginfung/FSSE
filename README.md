@@ -32,4 +32,4 @@ In this repo, `godview` = `GroundTruth`. Project was developed under python2.7. 
 
 All results are piped to one folder `tse_rs`. Please make sure you've created such folder within execute path.
 
-To get multi-objective metrics(HV,GD,PFS or GS), go to "Metrics" and run `plots.py`
+To get multi-objective metrics(HV,GD,PFS or GS), go to "Metrics" and run `all_metrics.py`
