@@ -23,7 +23,7 @@ class FixedOrderFormatter(ScalarFormatter):
         self.orderOfMagnitude = self._order_of_mag
 
 
-y_titles = ['Generational Distance\n(less is better)', 'Generated Spread\n(less is better)',
+y_titles = ['Generational Distance\n(lower is better)', 'Generated Spread\n(lower is better)',
             'Pareto Front Size\n(higher is better)', 'Hypervolume\n(higher is better)']
 
 
@@ -40,6 +40,8 @@ def plot(model, t_i, yround=4, lessIsBetter=True, ax=None):
     :param t_i: 0-gd, 1-gs, 2-pfs, 3-hv
     :return:
     """
+    plt.setp(ax.spines.values(), linewidth=0.5)
+
     with open('../Experiments/tse_rs/all.stat', 'r') as f:
         data = pickle.load(f)
         data = data[model]
@@ -141,8 +143,10 @@ def plot(model, t_i, yround=4, lessIsBetter=True, ax=None):
 
     for ml, b, col, fcol in zip(box['medians'], box['boxes'], colors, fcolors):
         b.set_color(col)
+        b.set_linewidth(0.5)
         b.set(facecolor=fcol)
         ml.set_color(col)  # median
+        ml.set_linewidth(0.5)
 
     # ax.yaxis.set_major_formatter(FixedOrderFormatter(-2))
     ax.get_yaxis().get_major_formatter().set_useOffset(True)
