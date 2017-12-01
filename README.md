@@ -24,6 +24,8 @@ For more information, please check out our paper!
 To run the experiments, one should go to Folder "Experiments". Each file there contains one experiements. For example, to run NSGA-II for POM3 mode,
 one should execute
 ```bash
+# jump to project folder first
+source addroot.sh
 cd Experiments
 python pom3_nsga2.py
 ```
