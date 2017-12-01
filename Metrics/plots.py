@@ -23,7 +23,7 @@ class FixedOrderFormatter(ScalarFormatter):
         self.orderOfMagnitude = self._order_of_mag
 
 
-y_titles = ['Generational Distance\n(less is better)', 'Genearted Spread\n(less is better)',
+y_titles = ['Generational Distance\n(less is better)', 'Generated Spread\n(less is better)',
             'Pareto Front Size\n(higher is better)', 'Hypervolume\n(higher is better)']
 
 
