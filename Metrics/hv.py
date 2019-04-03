@@ -13,7 +13,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+from __builtin__ import xrange
 
 __author__ = "Simon Wessing"
 
@@ -60,7 +60,7 @@ class HyperVolume:
             # shift points so that referencePoint == [0, ..., 0]
             # this way the reference point doesn't have to be explicitly used
             # in the HV computation
-            for j in xrange(len(relevantPoints)):
+            for j in range(len(relevantPoints)):
                 relevantPoints[j] = [relevantPoints[j][i] - referencePoint[i] for i in xrange(dimensions)]
         self.preProcess(relevantPoints)
         bounds = [-1.0e308] * dimensions
