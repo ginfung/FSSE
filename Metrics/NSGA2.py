@@ -11,14 +11,14 @@ import time
 import numpy
 import os
 import random
+import debug
 import pdb
 
 
 def random_pop(model, N):
     pop = list()
     for _ in range(N):
-        pop.append(
-            model.Individual([random.random() for _ in range(model.decsNum)]))
+        pop.append(model.Individual([random.random() for _ in range(model.decsNum)]))
     return pop
 
 
@@ -53,20 +53,12 @@ def action(model, mu, ngen, cxpb, mutpb):
     toolbox = model.toolbox
 
     toolbox.register('mate', tools.cxOnePoint)
-    toolbox.register(
-        'mutate',
-        tools.mutPolynomialBounded,
-        low=0,
-        up=1.0,
-        eta=20.0,
-        indpb=1.0 / model.decsNum)
+    toolbox.register('mutate', tools.mutPolynomialBounded, low=0, up=1.0, eta=20.0, indpb=1.0 / model.decsNum)
     toolbox.register('select', tools.selNSGA2)
 
     stats = tools.Statistics(lambda ind: ind)
     PF0 = list()
-    with open(
-            os.path.dirname(os.path.abspath(__file__)) + '/../Metrics/PF_0/' +
-            model.name + '.txt', 'r') as f:
+    with open(os.path.dirname(os.path.abspath(__file__))+'/../Metrics/PF_0/' + model.name + '.txt', 'r') as f:
         for l in f:
             e = l.strip('\n').split(' ')
             e = [float(i) for i in e]
