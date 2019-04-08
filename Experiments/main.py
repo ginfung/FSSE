@@ -30,7 +30,8 @@ rootpath = path[:path.rfind('FSSE') + 4]
 sys.path.append(rootpath)
 
 from Algorithms.sway_sampler import sway, bin_dominate, cont_dominate
-from Algorithms import NSGA2
+from Algorithms import NSGA2, WORTHY
+
 from Benchmarks import XOMO, POM3
 from deap.tools import emo
 import functools
@@ -107,21 +108,43 @@ def get_random_res(model, size=10000):
 
 
 def get_nsga2_res(model):
-    return NSGA2.action(model, mu=300, ngen=10000 // 100, cxpb=0.9, mutpb=0.15)
+    return NSGA2.action(model, mu=300, ngen=50, cxpb=0.9, mutpb=0.15)
 
 
+def get_worthy_res(model):
+    return WORTHY.action(model)
+
+
+"""
+python Experiments/main.py
+-alg NSGA2/SWAY/RANDOM/WORTHY
+-m 0~6
+-r 20
+"""
 if __name__ == '__main__':
-    alg = 'SWAY'
+    # Parsing the sys.argv
+    alg = 'WORTHY'
+    model_id = 0
+    repeat = 1
     for i, v in enumerate(sys.argv):
         if v == '-alg':
             alg = sys.argv[i + 1]
+        if v == '-model':
+            model_id = int(sys.argv[i + 1])
+        if v == '-r':
+            repeat = int(sys.argv[i + 1])
+
     alg = alg.upper()
 
     XOMO_OSP, XOMO_OSP2, XOMO_GROUND, XOMO_FLIGHT = XOMO.pre_defined()
     POM3a, POM3b, POM3c = POM3.pre_defined()[:3]
+    models = [
+        XOMO_OSP, XOMO_OSP2, XOMO_GROUND, XOMO_FLIGHT, POM3a, POM3b, POM3c
+    ]
+    model = models[model_id]
+    # End parsing the sys.argv
 
-    # for XOMO_model in [XOMO_OSP, XOMO_OSP2, XOMO_GROUND, XOMO_FLIGHT]:
-    for model in [POM3a, POM3b, POM3c]:
+    for _ in range(repeat):
         start_time = time.time()
         res = list()
         print(f"Running {alg} for {model.name}")
@@ -131,9 +154,11 @@ if __name__ == '__main__':
             res = get_random_res(model)
         elif alg == 'NSGA2':
             res = get_nsga2_res(model)
+        elif alg == 'WORTHY':
+            res = get_worthy_res(model)
         finish_time = time.time()
         # save the results
-        with open(f'{rootpath}/results/{model.name}.res', 'a+') as f:
+        with open(f'{rootpath}/results/{model.name}.{alg}.res', 'a+') as f:
             f.write('##\n')
             for i in res:
                 f.write(' '.join(map(str, i.fitness.values)))

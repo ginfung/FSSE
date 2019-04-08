@@ -1,7 +1,0 @@
-Algorithms/
-Benchmarks/POM3.py
-Benchmarks/XOMO.py
-Benchmakrs/POM3_Base
-Benchmakrs/XOMO_Base
-Experiments/
-Metrics/

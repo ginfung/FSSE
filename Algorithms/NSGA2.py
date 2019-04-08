@@ -63,18 +63,18 @@ def action(model, mu, ngen, cxpb, mutpb):
     toolbox.register('select', tools.selNSGA2)
 
     stats = tools.Statistics(lambda ind: ind)
-    PF0 = list()
-    with open(
-            os.path.dirname(os.path.abspath(__file__)) + '/../Metrics/PF_0/' +
-            model.name + '.txt', 'r') as f:
-        for l in f:
-            e = l.strip('\n').split(' ')
-            e = [float(i) for i in e]
-            PF0.append(e)
-    stats.register("gd_gs_pfs_hv", self_stats, model=model, PF0=PF0)
+    # PF0 = list()
+    # with open(
+    #         os.path.dirname(os.path.abspath(__file__)) + '/../Metrics/PF_0/' +
+    #         model.name + '.txt', 'r') as f:
+    #     for l in f:
+    #         e = l.strip('\n').split(' ')
+    #         e = [float(i) for i in e]
+    #         PF0.append(e)
+    # stats.register("gd_gs_pfs_hv", self_stats, model=model, PF0=PF0)
 
     logbook = tools.Logbook()
-    logbook.header = "gen", "gd_gs_pfs_hv"
+    # logbook.header = "gen", "gd_gs_pfs_hv"
 
     pop = random_pop(model, mu)
     for p in pop:
@@ -104,6 +104,8 @@ def action(model, mu, ngen, cxpb, mutpb):
         print(logbook.stream)
         print(time.time() - t)
 
+    for p in pop:
+        model.eval(p, normalized=False)
     return pop
 
 
