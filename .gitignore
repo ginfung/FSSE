@@ -91,9 +91,8 @@ ENV/
 .idea
 tmp_*
 tse_rs/
-results/
+*.res
 sanity*
-*.png
 *.eps
 .vscode
 

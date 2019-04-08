@@ -27,7 +27,9 @@ from deap import algorithms
 from deap import tools
 from deap.tools.emo import sortNondominated
 from sklearn.cluster import KMeans
+from sklearn.tree import DecisionTreeRegressor
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import figure
 import numpy as np
 import pandas as pd
 import time
@@ -48,33 +50,57 @@ def random_pop(model, N):
 
 def action(model):
     startat = time.time()
-    size = 100
+    size = 300
     init_pop = random_pop(model, size)
     for p in init_pop:
         model.eval(p, normalized=False)
 
     D = pd.DataFrame(data=init_pop, columns=model.decs)
     O = pd.DataFrame(data=list(map(lambda i: i.fitness.values, init_pop)))
+    """
+    Testing the hypothesis of FLASH
+    figure(figsize=(7, 10))
 
-    for _ in range(5):
-        point = random.randint(0, 100)
-        dD = D - D.iloc[point]
-        dO = O - O.iloc[point]
-        dist = np.square(dD).sum(axis=1)
-        tops_i = np.argsort(dist)[:30]
-        dD, dO = dD.iloc[tops_i], dO.iloc[tops_i]  # fetching the neighbors
+    for oi, obj in enumerate(O.columns):
+        plt.subplot(O.shape[1], 1, oi + 1)
+        trainsize = int(size * 0.7)
+        regr = DecisionTreeRegressor().fit(D.iloc[:trainsize, :],
+                                           O.iloc[:trainsize, oi])
+        o_pred = regr.predict(D.iloc[trainsize:, ])
+        plt.xlabel(f"Actual value for o{obj}")
+        plt.ylabel(f"Predict value for o{obj}")
+        plt.scatter(O.iloc[trainsize:, oi], o_pred, s=7)
+        plt.plot(
+            O.iloc[trainsize:, oi], O.iloc[trainsize:, oi],
+            color='red')  # the y=x line
+        plt.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
+        plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
 
-        dO = (dO - dO.mean()
-              ) / dO.std()  # for better viz, do the normalization for dO
+    plt.suptitle(
+        f"Build Decision tree to predict each separate obj @{model.name}")
+    plt.tight_layout()
+    plt.savefig(f"{model.name}_FLASH_ver.png")
+    """
 
-        _keans = KMeans(n_clusters=3, random_state=0).fit(dD).labels_
-        plt.clf()
-        for i, col in enumerate(dD.columns):
-            plt.scatter(dD.loc[:, col], [i] * dO.shape[0], c=_keans, s=15)
+    # for _ in range(5):
+    #     point = random.randint(0, 100)
+    #     dD = D - D.iloc[point]
+    #     dO = O - O.iloc[point]
+    #     dist = np.square(dD).sum(axis=1)
+    #     tops_i = np.argsort(dist)[:30]
+    #     dD, dO = dD.iloc[tops_i], dO.iloc[tops_i]  # fetching the neighbors
 
-        # # plt.title(model.name)
-        # # plt.savefig(f"{model.name}_global.png")
-        plt.show()
+    #     dO = (dO - dO.mean()
+    #           ) / dO.std()  # for better viz, do the normalization for dO
+
+    #     _keans = KMeans(n_clusters=3, random_state=0).fit(dD).labels_
+    #     plt.clf()
+    #     for i, col in enumerate(dO.columns):
+    #         plt.scatter(dO.loc[:, col], [i] * dO.shape[0], c=_keans, s=15)
+
+    #     # # plt.title(model.name)
+    #     # #3 plt.savefig(f"{model.name}_global.png")
+    #     plt.show()
 
     sys.exit(0)
     return res
