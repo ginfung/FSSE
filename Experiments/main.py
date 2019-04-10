@@ -86,8 +86,7 @@ def get_sway_res(model):
         candidates.append(can)
     res = sway(candidates, functools.partial(model.eval, normalized=False),
                _where, _comparing)
-
-    return res
+    return emo.sortNondominated(res, len(res), first_front_only=True)[0]
 
 
 def get_random_res(model, size=10000):
@@ -108,11 +107,11 @@ def get_random_res(model, size=10000):
 
 
 def get_nsga2_res(model):
-    return NSGA2.action(model, mu=300, ngen=50, cxpb=0.9, mutpb=0.15)
+    return NSGA2.action(model, mu=300, ngen=100, cxpb=0.9, mutpb=0.15)
 
 
 def get_worthy_res(model):
-    return WORTHY.action(model)
+    return WORTHY.action_expr(model)
 
 
 """
@@ -161,6 +160,7 @@ if __name__ == '__main__':
         with open(f'{rootpath}/results/{model.name}.{alg}.res', 'a+') as f:
             f.write('##\n')
             for i in res:
+                print(i.fitness.values)
                 f.write(' '.join(map(str, i.fitness.values)))
                 f.write('\n')
             f.write(f'# {alg} {model.name} {finish_time-start_time}\n')

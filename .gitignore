@@ -90,10 +90,10 @@ ENV/
 
 .idea
 tmp_*
-tse_rs/
 *.res
 sanity*
 *.eps
 .vscode
+PF_0/
 
 hpcsync.sh
