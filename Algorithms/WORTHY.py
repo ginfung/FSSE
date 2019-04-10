@@ -36,6 +36,8 @@ from sklearn.model_selection import train_test_split
 from mpl_toolkits import mplot3d
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
+from matplotlib.ticker import PercentFormatter
+import matplotlib.ticker as mtick
 import numpy as np
 import pandas as pd
 import time
@@ -66,28 +68,41 @@ def action_expr(model):
     for p in init_pop:
         model.eval(p, normalized=False)
     """
-    Testing the hypothesis of FLASH
+    # Testing the hypothesis of FLASH
+    size = 100
     figure(figsize=(7, 10))
 
+    D = pd.DataFrame(data=init_pop, columns=model.decs)
+    O = pd.DataFrame(data=list(map(lambda i: i.fitness.values, init_pop)))
     for oi, obj in enumerate(O.columns):
         plt.subplot(O.shape[1], 1, oi + 1)
         trainsize = int(size * 0.7)
         regr = DecisionTreeRegressor().fit(D.iloc[:trainsize, :],
                                            O.iloc[:trainsize, oi])
         o_pred = regr.predict(D.iloc[trainsize:, ])
-        plt.xlabel(f"Actual value for o{obj}")
-        plt.ylabel(f"Predict value for o{obj}")
-        plt.scatter(O.iloc[trainsize:, oi], o_pred, s=7)
-        plt.plot(
-            O.iloc[trainsize:, oi], O.iloc[trainsize:, oi],
-            color='red')  # the y=x line
-        plt.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
-        plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
+        o_pred = pd.DataFrame(
+            o_pred, index=range(trainsize, size), columns=[oi])
+        o_actual = pd.DataFrame(O.iloc[trainsize:, :], columns=O.columns)
+
+        actual_idx = np.array(o_actual.sort_values(by=obj).index)
+        pred_idx = np.array(o_pred.sort_values(by=obj).index)
+
+        idx_delta = (pred_idx - actual_idx) / (o_pred.shape[0])
+        idx_delta = sorted(idx_delta)
+        plt.scatter(range(o_pred.shape[0]), idx_delta, s=7)
+        plt.ylabel("(Rank delta)/totalCase")
+        # plt.xlabel(f"Actual idx for o{obj}")
+        # plt.ylabel(f"Predict value for o{obj}")
+        # plt.scatter(o_actual[obj], o_pred[obj], s=7)
+        # plt.plot(o_actual[obj], o_actual[obj], color='red')  # the y=x line
+        # plt.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
+        # plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
 
     plt.suptitle(
         f"Build Decision tree to predict each separate obj @{model.name}")
     plt.tight_layout()
-    plt.savefig(f"{model.name}_FLASH_ver.png")
+    plt.savefig(f"{model.name}_FLASH_ver_deltaRank.png")
+    # plt.show()
     """
     """
     Build learner for each objective dO = f(dD) ??
@@ -182,5 +197,4 @@ def action_expr(model):
         #     next_pop.append(new_candidates[nd])
         #     model.eval(next_pop[-1], normalized=False)
         pop = next_pop
-
     return emo.sortNondominated(pop, len(pop), first_front_only=True)[0]

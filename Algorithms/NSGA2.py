@@ -5,7 +5,6 @@ from deap import tools
 from deap.tools.emo import sortNondominated
 from Metrics.gs import GS
 from Metrics.gd import GD
-from Metrics.hv import HyperVolume
 import copy
 import time
 import numpy
@@ -36,17 +35,17 @@ def _get_frontier(pop):
     return uniques
 
 
-def self_stats(pop, model, PF0):
-    PFc = _get_frontier(pop)
-    PFc_list = [i.fitness.values for i in PFc]
-    gd = GD(PF0, PFc_list)
-    gs = GS(PF0, PFc_list)
-    pfs = len(PFc)
-    rp = [1] * len(PFc[0].fitness.values)  # reference point
+# def self_stats(pop, model, PF0):
+#     PFc = _get_frontier(pop)
+#     PFc_list = [i.fitness.values for i in PFc]
+#     gd = GD(PF0, PFc_list)
+#     gs = GS(PF0, PFc_list)
+#     pfs = len(PFc)
+#     rp = [1] * len(PFc[0].fitness.values)  # reference point
 
-    hv = HyperVolume(rp).compute(PFc_list)
-    hv = round(hv, 4)
-    return (gd, gs, pfs, hv)
+#     hv = HyperVolume(rp).compute(PFc_list)
+#     hv = round(hv, 4)
+#     return (gd, gs, pfs, hv)
 
 
 def action(model, mu, ngen, cxpb, mutpb):

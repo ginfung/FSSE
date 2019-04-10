@@ -7,7 +7,7 @@ sys.path.append(rootpath)
 
 from deap import creator, base
 from deap.tools.emo import sortNondominated
-from Metrics.hv import HyperVolume
+import pygmo
 from Metrics.gd import GD
 from Metrics.gs import GS
 from repeats import fetch_all_files
@@ -128,6 +128,19 @@ def global_info(model):
     objs_df[front_idx].reset_index(drop=True).to_pickle(f'PF_0/{model}_pf.pkl')
 
 
+def get_metrics(expr, fronts, front_srz):
+    # step 1 do the normalization
+    maxs, mins = front_srz.loc['max'], front_srz.loc['min']
+    expr_normed = (expr - mins) / (maxs - mins)
+    fronts_normed = (fronts - mins) / (maxs - mins)
+
+    hv = pygmo.hypervolume(expr_normed.values.tolist()).compute(
+        [1] * expr.shape[1])
+    print(hv)
+
+    pdb.set_trace()
+
+
 if __name__ == '__main__':
     warnings.filterwarnings("ignore")
     models = ['osp', 'osp2', 'ground', 'flight', 'p3a', 'p3b', 'p3c']
@@ -135,3 +148,18 @@ if __name__ == '__main__':
     # for model in models:
     #     global_info(model)
     #     print(f"{model} global_info Done.")
+
+    model = models[0]
+    fronts = pd.read_pickle(f'PF_0/{model}_pf.pkl')
+    front_srz = pd.read_pickle(f'PF_0/{model}_summary.pkl')
+
+    with open("../results/osp.SWAY.res", 'r') as f:
+        res = list()
+        for line in f.read().splitlines():
+            if line.startswith('##'):
+                res.clear()
+                continue
+            if line.startswith('# '):
+                expr = pd.DataFrame(res).convert_objects(convert_numeric=True)
+                get_metrics(expr, fronts, front_srz)
+            res.append(line.split(' '))
