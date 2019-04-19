@@ -95,5 +95,6 @@ sanity*
 *.eps
 .vscode
 PF_0/
+*.pkl
 
 hpcsync.sh

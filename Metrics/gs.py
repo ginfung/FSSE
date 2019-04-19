@@ -21,13 +21,12 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-
 from __future__ import division
 import operator
 
 
 def dist(a, b):
-    return sum((i-j)**2 for i, j in zip(a, b))
+    return sum((i - j)**2 for i, j in zip(a, b))
 
 
 def GS(PF0, PFc):
@@ -42,10 +41,10 @@ def GS(PF0, PFc):
         dl += min([dist(c, i) for i in PFc])
 
     d2 = list()
-    for s in PFc:
-        d = 'inf'
-        for o in PFc:
-            if s == o: continue
+    for si, s in enumerate(PFc):
+        d = float('inf')
+        for oi, o in enumerate(PFc):
+            if si == oi: continue
             d = min(d, dist(s, o))
         d2.append(d)
     meand = sum(d2) / len(d2)
