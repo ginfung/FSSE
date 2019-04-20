@@ -115,7 +115,9 @@ def MAIN(model, alg):
             res.append(line.split(' '))
 
     stats_df = pd.DataFrame(stats, columns=['hv', 'gd', 'gs', 'pfs'])
-    stats_df.to_pickle(f'../results/{model}.{alg}.stats.pkl')
+    print()
+    print(stats_df)
+    # stats_df.to_pickle(f'../results/{model}.{alg}.stats.pkl')
     print('!DONE!')
 
 
@@ -131,3 +133,4 @@ if __name__ == '__main__':
         for alg in ['NSGA2', 'RANDOM', 'SWAY']:
             print(f'Calculating {model} @ {alg}.')
             MAIN(model, alg)
+            sys.exit(0)
