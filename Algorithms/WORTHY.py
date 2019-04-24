@@ -34,10 +34,10 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 from sklearn.model_selection import train_test_split
 from mpl_toolkits import mplot3d
-import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
 from matplotlib.ticker import PercentFormatter
 import matplotlib.ticker as mtick
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import time
@@ -63,10 +63,10 @@ def random_pop(model, N):
 
 
 def action_expr(model):
-    startat = time.time()
-    init_pop = random_pop(model, 100)
-    for p in init_pop:
-        model.eval(p, normalized=False)
+    # startat = time.time()
+    # init_pop = random_pop(model, 100)
+    # for p in init_pop:
+    #     model.eval(p, normalized=False)
     """
     # Testing the hypothesis of FLASH
     size = 100
@@ -138,8 +138,7 @@ def action_expr(model):
     #     ax.scatter3D(O.iloc[idx, 0], O.iloc[idx, 1], O.iloc[idx, 2], c='red')
     #     ax.text(O.iloc[idx, 0], O.iloc[idx, 1], O.iloc[idx, 2], '0')
     """
-
-    pop = init_pop
+    """
     while True:
         print(f"size of pop = {len(pop)}")
         D = pd.DataFrame(data=pop, columns=model.decs)
@@ -197,4 +196,68 @@ def action_expr(model):
         #     next_pop.append(new_candidates[nd])
         #     model.eval(next_pop[-1], normalized=False)
         pop = next_pop
-    return emo.sortNondominated(pop, len(pop), first_front_only=True)[0]
+    """
+
+    startat = time.time()
+    next_pops_pool = list()
+    for round_ in range(10):
+        init_pop = random_pop(model, 100)
+        for p in init_pop:
+            model.eval(p, normalized=False)
+        pop = init_pop
+        print("100 init pop evaluated.")
+        # first round
+        D = pd.DataFrame(data=pop, columns=model.decs)
+        O = pd.DataFrame(data=list(map(lambda i: i.fitness.values, pop)))
+        front_idx = _emo_sortNondominated_idx(pop, first_front_only=True)[0]
+
+        for fi in front_idx:
+            dist_order = (D - D.loc[fi]).abs().pow(2).sum(
+                axis=1).sort_values().index[1:int(len(pop) * 0.1) +
+                                            1]  # fetch the top 10% of pop
+            dD, dO = list(), list()
+            for i in dist_order:
+                for j in dist_order:
+                    if i == j: continue
+                    dD.append(D.iloc[i] - D.iloc[j])
+                    dO.append(O.iloc[i] - O.iloc[j])
+            dD = pd.DataFrame(dD, index=range(len(dD)))
+            dO = pd.DataFrame(dO, index=range(len(dO)))
+            assert not (dO.std() < 0).any()
+
+            regr = list()
+            for oi, obj in enumerate(dO.columns):
+                regr_tmp = KNeighborsRegressor(n_neighbors=4).fit(dD, dO[obj])
+                regr.append(regr_tmp)
+
+            mut_dD, next_pop = list(), list()
+            for _ in range(D.shape[1] * 2):
+                mut_dD.append(D.loc[fi] * np.random.normal(0, 0.5, D.shape[1]))
+            mut_dD = pd.DataFrame(mut_dD, index=range(len(mut_dD)))
+            mut_dO = pd.DataFrame(columns=dO.columns)
+            for oi, obj in enumerate(mut_dO.columns):
+                mut_dO[obj] = regr[oi].predict(mut_dD)
+            filtered = (mut_dO < -0.5 * mut_dO.std()).any(axis=1)
+            new_decs = D.loc[fi] + mut_dD[filtered]
+
+            for nd in new_decs.index:
+                candidate = model.Individual(new_decs.loc[nd])
+                candidate.fitness.values = O.loc[fi] + mut_dO.loc[nd]
+                next_pop.append(candidate)
+            est_pf_idx = _emo_sortNondominated_idx(
+                next_pop, first_front_only=True)[0]
+
+            guess_pf = [pop[fi]]
+
+            for epi in est_pf_idx:
+                model.eval(next_pop[epi], normalized=False)
+                guess_pf.append(next_pop[epi])
+
+            really_pf = emo.sortNondominated(guess_pf, len(guess_pf), True)[0]
+            next_pops_pool.extend(really_pf)
+
+            # print(
+            #     f"Success guess rate: {len(really_pf_idx)/len(est_pf_idx)*100}%, Find anyway? {len(really_pf_idx)>=1}"
+            # )
+    return emo.sortNondominated(
+        next_pops_pool, len(next_pops_pool), first_front_only=True)[0]

@@ -110,14 +110,24 @@ def MAIN(model, alg):
             if line.startswith('# '):
                 expr = pd.DataFrame(res).convert_objects(convert_numeric=True)
                 hv, gd, gs, pfs = get_metrics(expr, fronts, front_srz)
-                stats.append([hv, gd, gs, pfs])
+                time = float(line.split(' ')[3])
+                evals = 0  # to be set
+                if alg == 'NSGA2':
+                    evals = 30000
+                elif alg == 'RANDOM':
+                    evals = 10000
+                else:
+                    evals = int(line.split(' ')[4])
+
+                stats.append([hv, gd, gs, pfs, time, evals])
                 print('.', end='')
             res.append(line.split(' '))
 
-    stats_df = pd.DataFrame(stats, columns=['hv', 'gd', 'gs', 'pfs'])
+    stats_df = pd.DataFrame(
+        stats, columns=['hv', 'gd', 'gs', 'pfs', 'time', 'evals'])
     print()
-    print(stats_df)
-    # stats_df.to_pickle(f'../results/{model}.{alg}.stats.pkl')
+    # print(stats_df)
+    stats_df.to_pickle(f'../results/{model}.{alg}.stats.pkl')
     print('!DONE!')
 
 
@@ -130,7 +140,7 @@ if __name__ == '__main__':
     #     print(f"{model} global_info Done.")
 
     for model in models:
-        for alg in ['NSGA2', 'RANDOM', 'SWAY']:
+        for alg in ['NSGA2', 'RANDOM', 'SWAY', 'WORTHY']:
             print(f'Calculating {model} @ {alg}.')
             MAIN(model, alg)
-            sys.exit(0)
+    #         sys.exit(0)

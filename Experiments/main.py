@@ -79,6 +79,7 @@ def get_sway_res(model):
         return bin_dominate(part1, part2)
 
     # Starting SWAY execution here
+    model.eval_counts = 0
     candidates = list()
     for _ in range(10000):
         ran_dec = [random.random() for _ in range(model.decsNum)]
@@ -90,6 +91,7 @@ def get_sway_res(model):
 
 
 def get_random_res(model, size=10000):
+    model.eval_counts = 0
     # generating the 10k random solutions
     candidates = list()
     for _ in range(size):
@@ -107,10 +109,12 @@ def get_random_res(model, size=10000):
 
 
 def get_nsga2_res(model):
+    model.eval_counts = 0
     return NSGA2.action(model, mu=300, ngen=100, cxpb=0.9, mutpb=0.15)
 
 
 def get_worthy_res(model):
+    model.eval_counts = 0
     return WORTHY.action_expr(model)
 
 
@@ -163,4 +167,6 @@ if __name__ == '__main__':
                 print(i.fitness.values)
                 f.write(' '.join(map(str, i.fitness.values)))
                 f.write('\n')
-            f.write(f'# {alg} {model.name} {finish_time-start_time}\n')
+            f.write(
+                f'# {alg} {model.name} {finish_time-start_time} {model.eval_counts}\n'
+            )

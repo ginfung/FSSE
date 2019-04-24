@@ -41,13 +41,15 @@ class POM3(object):
         self.toolbox = base.Toolbox()
         self.toolbox.register('evaluate', self.eval_ind)
         self.eval = self.toolbox.evaluate
+        self.eval_counts = 0
 
     def eval_ind(self, ind, normalized=True):
+        self.eval_counts += 1
         # demoralize the ind
         dind = []
         for dn, v in zip(self.decs, ind):
             m, M = self.bound[dn]
-            dind.append(v * (M - m) + m)
+            dind.append(min(max(v * (M - m) + m, m), M))
 
         p3 = pom3()
         output = p3.simulate(dind)
