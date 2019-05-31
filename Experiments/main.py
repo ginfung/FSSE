@@ -118,6 +118,11 @@ def get_worthy_res(model):
     return WORTHY.action_expr(model)
 
 
+def get_worthy2_res(model):
+    model.eval_counts = 0
+    return WORTHY.action_expr2(model)
+
+
 """
 python Experiments/main.py
 -alg NSGA2/SWAY/RANDOM/WORTHY
@@ -131,7 +136,7 @@ if __name__ == '__main__':
     repeat = 1
     for i, v in enumerate(sys.argv):
         if v == '-alg':
-            alg = sys.argv[i + 1]
+            alg = sys.argv[i + 1].upper()
         if v == '-model':
             model_id = int(sys.argv[i + 1])
         if v == '-r':
@@ -159,6 +164,8 @@ if __name__ == '__main__':
             res = get_nsga2_res(model)
         elif alg == 'WORTHY':
             res = get_worthy_res(model)
+        elif alg == 'WORTHY2':
+            res = get_worthy2_res(model)
         finish_time = time.time()
         # save the results
         with open(f'{rootpath}/results/{model.name}.{alg}.res', 'a+') as f:

@@ -63,143 +63,64 @@ def random_pop(model, N):
 
 
 def action_expr(model):
-    # startat = time.time()
-    # init_pop = random_pop(model, 100)
-    # for p in init_pop:
-    #     model.eval(p, normalized=False)
-    """
-    # Testing the hypothesis of FLASH
-    size = 100
-    figure(figsize=(7, 10))
+    startat = time.time()
+    samples = random_pop(model, 100)
+    for p in samples:
+        model.eval(p, normalized=False)
+    print("100 init pop evaluated.")
 
-    D = pd.DataFrame(data=init_pop, columns=model.decs)
-    O = pd.DataFrame(data=list(map(lambda i: i.fitness.values, init_pop)))
-    for oi, obj in enumerate(O.columns):
-        plt.subplot(O.shape[1], 1, oi + 1)
-        trainsize = int(size * 0.7)
-        regr = DecisionTreeRegressor().fit(D.iloc[:trainsize, :],
-                                           O.iloc[:trainsize, oi])
-        o_pred = regr.predict(D.iloc[trainsize:, ])
-        o_pred = pd.DataFrame(
-            o_pred, index=range(trainsize, size), columns=[oi])
-        o_actual = pd.DataFrame(O.iloc[trainsize:, :], columns=O.columns)
+    for round_ in range(10):
+        samples.extend(random_pop(model, 20))
+        for p in samples[-20:]:
+            model.eval(p, normalized=False)
+        D = pd.DataFrame(data=samples, columns=model.decs)
+        O = pd.DataFrame(data=list(map(lambda i: i.fitness.values, samples)))
+        front_idx = _emo_sortNondominated_idx(
+            samples, first_front_only=True)[0]
 
-        actual_idx = np.array(o_actual.sort_values(by=obj).index)
-        pred_idx = np.array(o_pred.sort_values(by=obj).index)
+        next_pop = list()
+        for fi in front_idx:
+            dist_order = (D - D.loc[fi]).abs().pow(2).sum(
+                axis=1).sort_values().index[1:int(len(samples) * 0.1) +
+                                            1]  # fetch the top 10% of samples
+            dD, dO = list(), list()
+            for i in dist_order:
+                for j in dist_order:
+                    if i == j: continue
+                    dD.append(D.iloc[i] - D.iloc[j])
+                    dO.append(O.iloc[i] - O.iloc[j])
+            dD = pd.DataFrame(dD, index=range(len(dD)))
+            dO = pd.DataFrame(dO, index=range(len(dO)))
+            assert not (dO.std() < 0).any()
 
-        idx_delta = (pred_idx - actual_idx) / (o_pred.shape[0])
-        idx_delta = sorted(idx_delta)
-        plt.scatter(range(o_pred.shape[0]), idx_delta, s=7)
-        plt.ylabel("(Rank delta)/totalCase")
-        # plt.xlabel(f"Actual idx for o{obj}")
-        # plt.ylabel(f"Predict value for o{obj}")
-        # plt.scatter(o_actual[obj], o_pred[obj], s=7)
-        # plt.plot(o_actual[obj], o_actual[obj], color='red')  # the y=x line
-        # plt.ticklabel_format(style='sci', axis='x', scilimits=(0, 0))
-        # plt.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))
+            regr = list()
+            for oi, obj in enumerate(dO.columns):
+                regr_tmp = KNeighborsRegressor(n_neighbors=4).fit(dD, dO[obj])
+                regr.append(regr_tmp)
 
-    plt.suptitle(
-        f"Build Decision tree to predict each separate obj @{model.name}")
-    plt.tight_layout()
-    plt.savefig(f"{model.name}_FLASH_ver_deltaRank.png")
-    # plt.show()
-    """
-    """
-    Build learner for each objective dO = f(dD) ??
-    
-    figure(figsize=(7, 10))
-    dD, dO = list(), list()
-    for i in range(size):
-        for j in range(i, size):
-            dD.append(D.iloc[i] - D.iloc[j])
-            dO.append(O.iloc[i] - O.iloc[j])
-    dD = pd.DataFrame(dD, index=range(len(dD)))
-    dO = pd.DataFrame(dO, index=range(len(dO)))
-
-    assert not (dO.std() < 0).any()
-    dO = (dO - 0) / dO.std()  # do the normalize with 0 as mean
-    for oi, obj in enumerate(dO.columns):
-        X_train, X_test, y_train, y_test = train_test_split(
-            dD, dO[obj], test_size=0.33)
-        regr = KNeighborsRegressor(n_neighbors=4).fit(X_train, y_train)
-        y_pred = regr.predict(X_test)
-
-        plt.subplot(dO.shape[1], 1, oi + 1)
-        plt.scatter(y_test, y_pred, s=3)
-
-        plt.plot([0] * len(y_pred), y_pred, color='red')
-        plt.plot(y_test, [0] * len(y_test), color='red')
-        plt.plot(y_test, y_test, color='red')
-
-    plt.tight_layout()
-    plt.savefig(f"{model.name}_map_delta.png")
-    # ax = plt.axes(projection='3d')
-    # for idx in front_idx[0]:
-    #     ax.scatter3D(O.iloc[idx, 0], O.iloc[idx, 1], O.iloc[idx, 2], c='red')
-    #     ax.text(O.iloc[idx, 0], O.iloc[idx, 1], O.iloc[idx, 2], '0')
-    """
-    """
-    while True:
-        print(f"size of pop = {len(pop)}")
-        D = pd.DataFrame(data=pop, columns=model.decs)
-        O = pd.DataFrame(data=list(map(lambda i: i.fitness.values, pop)))
-        dD, dO = list(), list()
-        for i in range(len(pop)):
-            for j in range(i, len(pop)):
-                dD.append(D.iloc[i] - D.iloc[j])
-                dO.append(O.iloc[i] - O.iloc[j])
-        dD = pd.DataFrame(dD, index=range(len(dD)))
-        dO = pd.DataFrame(dO, index=range(len(dO)))
-
-        assert not (dO.std() < 0).any()
-        dO = (dO - 0) / dO.std()  # do the normalize with 0 as mean
-        regr = list()
-        for oi, obj in enumerate(dO.columns):
-            regr_tmp = KNeighborsRegressor(n_neighbors=4).fit(dD, dO[obj])
-            regr.append(regr_tmp)
-
-        front_idx = _emo_sortNondominated_idx(pop, first_front_only=True)[0]
-        next_pop = [pop[i] for i in front_idx]
-
-        for p in next_pop:
-            print(p.fitness.values)
-        print('----')
-
-        # new_candidates = list()
-        for each_front_idx in front_idx:
-            # random gen bunches of neighbors
             mut_dD = list()
-            for _ in range(100):
-                mut_dD.append(D.loc[each_front_idx] * np.random.normal(
-                    0, 0.5, D.shape[1]))
+            for _ in range(D.shape[1] * 2):
+                mut_dD.append(D.loc[fi] * np.random.normal(0, 0.5, D.shape[1]))
             mut_dD = pd.DataFrame(mut_dD, index=range(len(mut_dD)))
             mut_dO = pd.DataFrame(columns=dO.columns)
-            # predicting mut_dO
             for oi, obj in enumerate(mut_dO.columns):
                 mut_dO[obj] = regr[oi].predict(mut_dD)
-
-            # select some and eval
-            # for i in mut_dD.index:
-            #     tmp_can = model.Individual(D.loc[each_front_idx] +
-            #                                mut_dD.loc[i])
-            #     tmp_can.fitness.values = O.loc[each_front_idx] + mut_dO.loc[i]
-            #     new_candidates.append(tmp_can)
-            filtered = (mut_dO < -0.5).any(axis=1)
-            new_decs = D.loc[each_front_idx] + mut_dD[filtered]
+            filtered = (mut_dO < -1 * mut_dO.std()).any(axis=1)
+            new_decs = D.loc[fi] + mut_dD[filtered]
+            print('new eval = ', str(new_decs.shape[0]))
             for nd in new_decs.index:
                 candidate = model.Individual(new_decs.loc[nd])
                 model.eval(candidate, normalized=False)
                 next_pop.append(candidate)
 
-        # for nd in _emo_sortNondominated_idx(
-        #         new_candidates, first_front_only=True)[0]:
-        #     next_pop.append(new_candidates[nd])
-        #     model.eval(next_pop[-1], normalized=False)
-        pop = next_pop
-    """
+        samples.extend(emo.sortNondominated(next_pop, len(next_pop), True)[0])
+        print(f'Round {round_} done. Sample size = {len(samples)}')
+    return emo.sortNondominated(
+        samples, len(samples), first_front_only=True)[0]
 
+
+def action_expr2(model):
     startat = time.time()
-    next_pops_pool = list()
     for round_ in range(10):
         init_pop = random_pop(model, 100)
         for p in init_pop:
@@ -211,6 +132,7 @@ def action_expr(model):
         O = pd.DataFrame(data=list(map(lambda i: i.fitness.values, pop)))
         front_idx = _emo_sortNondominated_idx(pop, first_front_only=True)[0]
 
+        guess_pf = list()
         for fi in front_idx:
             dist_order = (D - D.loc[fi]).abs().pow(2).sum(
                 axis=1).sort_values().index[1:int(len(pop) * 0.1) +
@@ -244,20 +166,17 @@ def action_expr(model):
                 candidate = model.Individual(new_decs.loc[nd])
                 candidate.fitness.values = O.loc[fi] + mut_dO.loc[nd]
                 next_pop.append(candidate)
-            est_pf_idx = _emo_sortNondominated_idx(
-                next_pop, first_front_only=True)[0]
 
-            guess_pf = [pop[fi]]
+            guess_pf.append(pop[fi])
+            guess_pf.extend(next_pop)
 
-            for epi in est_pf_idx:
-                model.eval(next_pop[epi], normalized=False)
-                guess_pf.append(next_pop[epi])
+        guess_pf = emo.sortNondominated(guess_pf, len(guess_pf), True)[0]
+        for i in range(len(guess_pf)):
+            model.eval(guess_pf[i], normalized=False)
+        next_pops_pool.extend(guess_pf)
 
-            really_pf = emo.sortNondominated(guess_pf, len(guess_pf), True)[0]
-            next_pops_pool.extend(really_pf)
-
-            # print(
-            #     f"Success guess rate: {len(really_pf_idx)/len(est_pf_idx)*100}%, Find anyway? {len(really_pf_idx)>=1}"
-            # )
+        # print(
+        #     f"Success guess rate: {len(really_pf_idx)/len(est_pf_idx)*100}%, Find anyway? {len(really_pf_idx)>=1}"
+        # )
     return emo.sortNondominated(
         next_pops_pool, len(next_pops_pool), first_front_only=True)[0]
