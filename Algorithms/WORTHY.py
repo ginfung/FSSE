@@ -121,22 +121,25 @@ def action_expr(model):
 
 def action_expr2(model):
     startat = time.time()
-    for round_ in range(10):
-        init_pop = random_pop(model, 100)
-        for p in init_pop:
-            model.eval(p, normalized=False)
-        pop = init_pop
-        print("100 init pop evaluated.")
-        # first round
-        D = pd.DataFrame(data=pop, columns=model.decs)
-        O = pd.DataFrame(data=list(map(lambda i: i.fitness.values, pop)))
-        front_idx = _emo_sortNondominated_idx(pop, first_front_only=True)[0]
+    samples = random_pop(model, 100)
+    for p in samples:
+        model.eval(p, normalized=False)
+    print("100 init pop evaluated.")
 
-        guess_pf = list()
+    for round_ in range(10):
+        samples.extend(random_pop(model, 20))
+        for p in samples[-20:]:
+            model.eval(p, normalized=False)
+        D = pd.DataFrame(data=samples, columns=model.decs)
+        O = pd.DataFrame(data=list(map(lambda i: i.fitness.values, samples)))
+        front_idx = _emo_sortNondominated_idx(
+            samples, first_front_only=True)[0]
+
+        next_pop = list()
         for fi in front_idx:
             dist_order = (D - D.loc[fi]).abs().pow(2).sum(
-                axis=1).sort_values().index[1:int(len(pop) * 0.1) +
-                                            1]  # fetch the top 10% of pop
+                axis=1).sort_values().index[1:int(len(samples) * 0.1) +
+                                            1]  # fetch the top 10% of samples
             dD, dO = list(), list()
             for i in dist_order:
                 for j in dist_order:
@@ -152,31 +155,25 @@ def action_expr2(model):
                 regr_tmp = KNeighborsRegressor(n_neighbors=4).fit(dD, dO[obj])
                 regr.append(regr_tmp)
 
-            mut_dD, next_pop = list(), list()
+            mut_dD = list()
             for _ in range(D.shape[1] * 2):
                 mut_dD.append(D.loc[fi] * np.random.normal(0, 0.5, D.shape[1]))
             mut_dD = pd.DataFrame(mut_dD, index=range(len(mut_dD)))
             mut_dO = pd.DataFrame(columns=dO.columns)
             for oi, obj in enumerate(mut_dO.columns):
                 mut_dO[obj] = regr[oi].predict(mut_dD)
-            filtered = (mut_dO < -0.5 * mut_dO.std()).any(axis=1)
+            filtered = (mut_dO < -1 * mut_dO.std()).any(axis=1)
             new_decs = D.loc[fi] + mut_dD[filtered]
-
+            print('new eval = ', str(new_decs.shape[0]))
             for nd in new_decs.index:
                 candidate = model.Individual(new_decs.loc[nd])
                 candidate.fitness.values = O.loc[fi] + mut_dO.loc[nd]
                 next_pop.append(candidate)
 
-            guess_pf.append(pop[fi])
-            guess_pf.extend(next_pop)
-
-        guess_pf = emo.sortNondominated(guess_pf, len(guess_pf), True)[0]
-        for i in range(len(guess_pf)):
-            model.eval(guess_pf[i], normalized=False)
-        next_pops_pool.extend(guess_pf)
-
-        # print(
-        #     f"Success guess rate: {len(really_pf_idx)/len(est_pf_idx)*100}%, Find anyway? {len(really_pf_idx)>=1}"
-        # )
+        tmp_pf = emo.sortNondominated(next_pop, len(next_pop), True)[0]
+        for p in tmp_pf:
+            model.eval(p, normalized=False)
+        samples.extend(tmp_pf)
+        print(f'Round {round_} done. Sample size = {len(samples)}')
     return emo.sortNondominated(
-        next_pops_pool, len(next_pops_pool), first_front_only=True)[0]
+        samples, len(samples), first_front_only=True)[0]

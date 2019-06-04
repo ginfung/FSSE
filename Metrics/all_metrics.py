@@ -126,7 +126,7 @@ def MAIN(model, alg):
     stats_df = pd.DataFrame(
         stats, columns=['hv', 'gd', 'gs', 'pfs', 'time', 'evals'])
     print()
-    # print(stats_df)
+    print(stats_df)
     stats_df.to_pickle(f'../results/{model}.{alg}.stats.pkl')
     print('!DONE!')
 
@@ -134,13 +134,15 @@ def MAIN(model, alg):
 if __name__ == '__main__':
     warnings.filterwarnings("ignore")
     models = ['osp', 'osp2', 'ground', 'flight', 'p3a', 'p3b', 'p3c']
+    # models = ['osp']
 
     # for model in models:
     #     global_info(model)
     #     print(f"{model} global_info Done.")
 
     for model in models:
-        for alg in ['NSGA2', 'RANDOM', 'SWAY', 'WORTHY']:
+        # for alg in ['NSGA2', 'RANDOM', 'SWAY', 'WORTHY']:
+        for alg in ['WORTHY', 'WORTHY2']:
             print(f'Calculating {model} @ {alg}.')
             MAIN(model, alg)
     #         sys.exit(0)
