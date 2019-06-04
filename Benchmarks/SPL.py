@@ -19,7 +19,8 @@ def load_product_url(fm_name):
     stat_line_pattern = re.compile(r'p cnf (\d+) (\d+)')
 
     features_names_dict = dict()
-    filen = os.path.dirname(os.path.abspath(__file__)) + '/../Benchmarks/dimacs/' + fm_name + '.dimacs'
+    filen = os.path.dirname(os.path.abspath(
+        __file__)) + '/../Benchmarks/dimacs/' + fm_name + '.dimacs'
     source = open(filen, 'r').read().split('\n')
 
     for line in source:
@@ -41,13 +42,17 @@ def load_product_url(fm_name):
             cnfNum = int(m.group(2))
 
             # transfer the features_names into the list if dimacs file is valid
-            assert len(features_names_dict) == featureNum, "There exists some features without any name"
+            assert len(
+                features_names_dict
+            ) == featureNum, "There exists some features without any name"
             for i in range(1, featureNum + 1):
                 feature_names.append(features_names_dict[i])
             del features_names_dict
 
         elif line.endswith('0'):  # the cnf
-            cnfs.append(map(int, line.split(' '))[:-1])  # delete the 0, store as the lint list
+            cnfs.append(map(
+                int,
+                line.split(' '))[:-1])  # delete the 0, store as the lint list
 
         else:
             assert True, "Unknown line" + line
@@ -65,7 +70,8 @@ class DimacsModel:
         self.used_before = []
         self.defects = []
 
-        filen = os.path.dirname(os.path.abspath(__file__)) + '/../Benchmarks/dimacs/' + fm_name + '.dimacs.augment'
+        filen = os.path.dirname(os.path.abspath(
+            __file__)) + '/../Benchmarks/dimacs/' + fm_name + '.dimacs.augment'
         lines = open(filen, 'r').read().split('\n')[1:]
 
         lines = map(lambda x: x.rstrip(), lines)
@@ -76,7 +82,8 @@ class DimacsModel:
             self.used_before.append(bool(int(b)))
             self.defects.append(int(c))
 
-        creator.create("FitnessMin", base.Fitness, weights=[-1.0] * 5, vioconindex=list())
+        creator.create(
+            "FitnessMin", base.Fitness, weights=[-1.0] * 5, vioconindex=list())
         creator.create("Individual", str, fitness=creator.FitnessMin)
 
         self.creator = creator

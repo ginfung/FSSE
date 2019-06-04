@@ -90,7 +90,11 @@ ENV/
 
 .idea
 tmp_*
-tse_rs/
+*.res
 sanity*
-*.png
 *.eps
+.vscode
+PF_0/
+*.pkl
+
+hpcsync.sh
